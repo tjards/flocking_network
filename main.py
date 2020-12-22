@@ -97,7 +97,7 @@ while round(t,3) < Tf:
     
     # store
     # store first steps
-    t_all[i]              = Ti
+    t_all[i]              = t
     states_all[i,:]       = state
     cmds_all[i,:]         = cmd
     i += 1

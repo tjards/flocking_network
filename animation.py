@@ -42,7 +42,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks):
     ax.set_zlabel('Altitude')
     
     #labels
-    titleTime = ax.text2D(0.05, 0.95, "0", transform=ax.transAxes)
+    titleTime = ax.text2D(0.05, 0.95, "", transform=ax.transAxes)
     titleType1 = ax.text2D(0.95, 0.95, 'Title1', transform=ax.transAxes, horizontalalignment='right')
     titleType2 = ax.text2D(0.95, 0.91, 'Title2', transform=ax.transAxes, horizontalalignment='right') 
     
@@ -73,7 +73,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks):
         line3.set_3d_properties(z_from0)
         titleTime.set_text(u"Time = {:.2f} s".format(time))
         
-        return line2, line3
+        return line2, line3, titleTime
     
     
     line_ani = animation.FuncAnimation(fig, update, blit=False, frames=len(t_all[0:-2:numFrames]), interval=(Ts*1000*numFrames))
