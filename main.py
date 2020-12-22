@@ -12,6 +12,7 @@ Implement a double integrator
 
 #%% Imports
 from scipy.integrate import ode
+#from scipy.integrate import odeint
 import numpy as np
 # import matplotlib.pyplot as plt
 # import mpl_toolkits.mplot3d.axes3d as p3
@@ -94,7 +95,10 @@ while round(t,3) < Tf:
     
     # integrate through dynamics
     
+    
     for j in range(0,nVeh):
+        
+        #this isn't working .... try odeint?
     
         integrator.set_initial_value(states_all[0,:,j],Ts)
         integrator.set_f_params(cmd[:,j])

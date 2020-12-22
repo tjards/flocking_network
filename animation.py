@@ -77,7 +77,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks,nVeh):
     
     
     line_ani = animation.FuncAnimation(fig, update, blit=False, frames=len(t_all[0:-2:numFrames]), interval=(Ts*1000*numFrames))
-    #line_ani.save('Figs/animation.gif', writer=writer)
+    line_ani.save('Figs/animation.gif', writer=writer)
     plt.show()
     return line_ani
     
