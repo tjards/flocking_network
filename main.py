@@ -13,11 +13,14 @@ Implement a double integrator
 #%% Imports
 from scipy.integrate import ode
 import numpy as np
+import matplotlib.pyplot as plt
+import mpl_toolkits.mplot3d.axes3d as p3
+from matplotlib import animation
 
+#%% Setup 
 
-#%% Dynamics 
-
-# Initialize stuff
+# Simulation Parameters
+# ----------------
 Ti = 0      # initial time
 Tf = 5      # final time 
 Ts = 0.1    # sample time
@@ -33,7 +36,6 @@ cmd = np.zeros(3)
 cmd[0] = 0.1      # command (x)
 cmd[1] = 0.3      # command (y)
 cmd[2] = 0.2      # command (z)
-
 
 
 # Define dynamics
@@ -60,23 +62,45 @@ def state_dot(t, state, cmd):
 
 # Set integrator
 # -------------
-
 integrator = ode(state_dot).set_integrator('dopri5', first_step='0.00005', atol='10e-6', rtol='10e-6')
 integrator.set_initial_value(state, Ti)
 
-# Run simulation 
-# --------------
+#%% Run simulation 
+
+# initialize 
 t = Ti
 i = 1
+nSteps = int(Tf/Ts+1)
+t_all          = np.zeros(nSteps)
+states_all     = np.zeros([nSteps, len(state)])
+cmds_all       = np.zeros([nSteps, len(cmd)])
 
+# store first steps
+t_all[0]              = Ti
+states_all[0,:]       = state
+cmds_all[0,:]         = cmd
+
+# run
 while round(t,3) < Tf:
     
-    # integrate
+    # integrate through dynamics 
     integrator.set_f_params(cmd)
     state = integrator.integrate(t, t+Ts)
-    
     t += Ts
+    
+    # store
+    # store first steps
+    t_all[i]              = Ti
+    states_all[i,:]       = state
+    cmds_all[i,:]         = cmd
+    i += 1
+    
+#%% plot
+fig = plt.figure()
+ax = p3.Axes3D(fig)   
+ax.scatter(states_all[:,0], states_all[:,1], states_all[:,2], color='blue', alpha=1, marker = 'o', s = 25)    
 
+    
 
 
          
