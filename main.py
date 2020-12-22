@@ -13,9 +13,10 @@ Implement a double integrator
 #%% Imports
 from scipy.integrate import ode
 import numpy as np
-import matplotlib.pyplot as plt
-import mpl_toolkits.mplot3d.axes3d as p3
-from matplotlib import animation
+# import matplotlib.pyplot as plt
+# import mpl_toolkits.mplot3d.axes3d as p3
+# from matplotlib import animation
+import animation 
 
 #%% Setup 
 
@@ -36,6 +37,11 @@ cmd = np.zeros(3)
 cmd[0] = 0.1      # command (x)
 cmd[1] = 0.3      # command (y)
 cmd[2] = 0.2      # command (z)
+landmarks = np.zeros((1,3))
+landmarks[0,0] = 0.2
+landmarks[0,1] = -0.3
+landmarks[0,2] = -0.4
+
 
 
 # Define dynamics
@@ -66,6 +72,7 @@ integrator = ode(state_dot).set_integrator('dopri5', first_step='0.00005', atol=
 integrator.set_initial_value(state, Ti)
 
 #%% Run simulation 
+# ----------------
 
 # initialize 
 t = Ti
@@ -96,11 +103,9 @@ while round(t,3) < Tf:
     i += 1
     
 #%% plot
-fig = plt.figure()
-ax = p3.Axes3D(fig)   
-ax.scatter(states_all[:,0], states_all[:,1], states_all[:,2], color='blue', alpha=1, marker = 'o', s = 25)    
 
-    
+ani = animation.animateMe(Ts, t_all, states_all, cmds_all, landmarks)
+#plt.show()    
 
 
          
