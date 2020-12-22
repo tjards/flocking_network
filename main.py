@@ -26,7 +26,7 @@ import animation
 Ti = 0      # initial time
 Tf = 5      # final time 
 Ts = 0.1    # sample time
-nVeh = 15
+nVeh = 50
 iSpread = 3
 
 state = np.zeros((6,nVeh))
@@ -46,33 +46,34 @@ landmarks[0,1] = 0
 landmarks[0,2] = 0
 
 
+# %% When using integration method
 
-# Define dynamics
-# ---------------
-def state_dot(t, state, cmd):
+# # Define dynamics
+# # ---------------
+# def state_dot(t, state, cmd):
     
-    dynDot = np.array([
-        [state[3]],
-        [state[4]],
-        [state[5]],
-        [cmd[0]],
-        [cmd[1]],
-        [cmd[2]]])
+#     dynDot = np.array([
+#         [state[3]],
+#         [state[4]],
+#         [state[5]],
+#         [cmd[0]],
+#         [cmd[1]],
+#         [cmd[2]]])
     
-    dstate = np.zeros(6)
-    dstate[0] = dynDot[0]
-    dstate[1] = dynDot[1]
-    dstate[2] = dynDot[2]
-    dstate[3] = dynDot[3]
-    dstate[4] = dynDot[4]
-    dstate[5] = dynDot[5]
+#     dstate = np.zeros(6)
+#     dstate[0] = dynDot[0]
+#     dstate[1] = dynDot[1]
+#     dstate[2] = dynDot[2]
+#     dstate[3] = dynDot[3]
+#     dstate[4] = dynDot[4]
+#     dstate[5] = dynDot[5]
     
-    return dstate
+#     return dstate
 
-# Set integrator
-# -------------
-integrator = ode(state_dot).set_integrator('dopri5', first_step='0.00005', atol='10e-6', rtol='10e-6')
-integrator.set_initial_value(state[:,0], Ti)
+# # Set integrator
+# # -------------
+# integrator = ode(state_dot).set_integrator('dopri5', first_step='0.00005', atol='10e-6', rtol='10e-6')
+# integrator.set_initial_value(state, Ti)
 
 #%% Run simulation 
 # ----------------
@@ -93,23 +94,30 @@ cmds_all[0,:,:]         = cmd
 # run
 while round(t,3) < Tf:
     
-    # integrate through dynamics
+    ## integrate through dynamics (slower)
+    #integrator.set_f_params(cmd)
+    #state = integrator.integrate(t, t+Ts)
     
-    
-    for j in range(0,nVeh):
+    #generate random inputs
+    if i == 20:
+        cmd[0] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (x)
+        cmd[1] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (y)
+        cmd[2] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (z)
         
-        #this isn't working .... try odeint?
+    if i == 40:
+        cmd[0] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (x)
+        cmd[1] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (y)
+        cmd[2] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (z)
     
-        integrator.set_initial_value(states_all[0,:,j],Ts)
-        integrator.set_f_params(cmd[:,j])
-        #state[:,j] = integrator.integrate(t, t+Ts)
-        state[:,j] = integrator.integrate(t, t+Ts)
-        
+    
+    #discretized doubple integrator 
+    state[0:3,:] = state[0:3,:] + state[3:6,:]*Ts
+    state[3:6,:] = state[3:6,:] + cmd[:,:]*Ts
+            
     t += Ts
     
     # store
-    # store first steps
-    t_all[i]              = t
+    t_all[i]                = t
     states_all[i,:,:]       = state
     cmds_all[i,:,:]         = cmd
     i += 1

@@ -14,15 +14,18 @@ plt.rcParams['animation.ffmpeg_path'] = '/usr/local/bin/ffmpeg' #my add - this p
 Writer = animation.writers['ffmpeg']
 writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
 
-numFrames = 4 # frame rate (bigger = slower)
+numFrames = 1 # frame rate (bigger = slower)
 tail = 8
 
-def animateMe(Ts, t_all, states_all, cmds_all, landmarks,nVeh):
+def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
     
     # pull out positions
     x = states_all[:,0,:]
     y = states_all[:,1,:]
     z = states_all[:,2,:]
+    x_from0 = x
+    y_from0 = y
+    z_from0 = z
 
     # initialize plot
     fig = plt.figure()
@@ -51,29 +54,49 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks,nVeh):
     
     # initial lines 
     #line1, = ax.plot([], [], [], lw=2, color='red')
-    line2, = ax.plot([], [], [], 'bo')
-    line3, = ax.plot([], [], [], '--', lw=1, color='blue')
+    
+    lines_dots = []
+    lines_tails = []
+    
+    for i in range (0, nVeh):
+        
+        line_dot = ax.plot([], [], [], 'bo')
+        lines_dots.extend(line_dot)
+        line_tail = ax.plot([], [], [], '--', lw=1, color='blue')
+        lines_tails.extend(line_tail)
+
     
     def update(i):
              
         time = t_all[i*numFrames]
-        x = states_all[i*numFrames,0]
-        y = states_all[i*numFrames,1]
-        z = states_all[i*numFrames,2]
+        x = states_all[i*numFrames,0,:]
+        y = states_all[i*numFrames,1,:]
+        z = states_all[i*numFrames,2,:]
         #x_from0 = states_all[0:i*numFrames,0]
         #y_from0 = states_all[0:i*numFrames,1]
         #z_from0 = states_all[0:i*numFrames,2]
-        x_from0 = states_all[i*numFrames-tail:i*numFrames,0]
-        y_from0 = states_all[i*numFrames-tail:i*numFrames,1]
-        z_from0 = states_all[i*numFrames-tail:i*numFrames,2]
+        x_from0 = states_all[i*numFrames-tail:i*numFrames,0,:]
+        y_from0 = states_all[i*numFrames-tail:i*numFrames,1,:]
+        z_from0 = states_all[i*numFrames-tail:i*numFrames,2,:]
         
-        line2.set_data(x, y)
-        line2.set_3d_properties(z)
-        line3.set_data(x_from0, y_from0)
-        line3.set_3d_properties(z_from0)
+        
+        for j in range (0, nVeh):
+            
+            temp1 = lines_dots[j]
+            temp2 = lines_tails[j]
+            temp1.set_data(x[j], y[j])
+            temp1.set_3d_properties(z[j])
+            #if i > 0:
+            temp2.set_data(x_from0[:,j], y_from0[:,j])
+            temp2.set_3d_properties(z_from0[:,j])
+
+        #line2.set_data(x, y)
+        #line2.set_3d_properties(z)
+        #line3.set_data(x_from0, y_from0)
+        #line3.set_3d_properties(z_from0)
         titleTime.set_text(u"Time = {:.2f} s".format(time))
         
-        return line2, line3, titleTime
+        return lines_dots, lines_tails, titleTime
     
     
     line_ani = animation.FuncAnimation(fig, update, blit=False, frames=len(t_all[0:-2:numFrames]), interval=(Ts*1000*numFrames))
