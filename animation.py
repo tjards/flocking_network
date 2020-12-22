@@ -17,12 +17,12 @@ writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
 numFrames = 4 # frame rate (bigger = slower)
 tail = 8
 
-def animateMe(Ts, t_all, states_all, cmds_all, landmarks):
+def animateMe(Ts, t_all, states_all, cmds_all, landmarks,nVeh):
     
     # pull out positions
-    x = states_all[:,0]
-    y = states_all[:,1]
-    z = states_all[:,2]
+    x = states_all[:,0,:]
+    y = states_all[:,1,:]
+    z = states_all[:,2,:]
 
     # initialize plot
     fig = plt.figure()
@@ -77,7 +77,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks):
     
     
     line_ani = animation.FuncAnimation(fig, update, blit=False, frames=len(t_all[0:-2:numFrames]), interval=(Ts*1000*numFrames))
-    line_ani.save('Figs/animation.gif', writer=writer)
+    #line_ani.save('Figs/animation.gif', writer=writer)
     plt.show()
     return line_ani
     
