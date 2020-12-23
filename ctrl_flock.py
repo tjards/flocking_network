@@ -45,7 +45,7 @@ def controller(Ts, i, state, cmd, nVeh, targets, error_prev):
 # Vol. 51 (3), 3 Mar 2006
 # -------------------------------------------------------------------- 
 
-# hyper parameters 
+# ~~ hyper parameters ~~
 r = 1       # interaction range 
 a = 0.5
 b = 0.7
@@ -61,42 +61,20 @@ def flock_sum(u_int, u_obs, u_nav):
     
     return u_sum
 
+# ~~ common functions ~~ 
 
-    
-# Interaction Equations (for u_alpha)
-# -----------------------------------    
-  
 def sigma_norm(z):    
 
     norm_sig = (1/eps)*(np.sqrt(1+eps*np.linalg.norm(z)**2)-1)
     
     return norm_sig
     
-
 def n_ij(q_i, q_j):
 
     n_ij = np.divide(q_j-q_i,np.sqrt(1+eps*np.linalg.norm(q_j-q_i)**2))
     
     return n_ij
-    
-def phi_a(q_i, q_j, r):
- 
-    d = np.linalg.norm(q_j-q_i)
-    d_a = sigma_norm(d)
-    r_a = sigma_norm(r)
-    z1 = sigma_norm(q_j-q_i)
-        
-    phi_a = rho_h(z1/r_a) * phi(z1-d_a)
-    
-    return phi_a
-    
-def phi(z2,a,b,c):
-    
-    phi = 0.5*((a+b)*sigma_1(z2+c)+(a-b))
-    
-    return phi 
-    
-    
+
 def sigma_1(z3):
     
     sigma_1 = np.divide(z3,np.sqrt(1+z3**2))
@@ -116,3 +94,38 @@ def rho_h(z4):
         rho_h = 0
   
     return rho_h
+
+
+
+    
+# Interaction Equations (for u_alpha)
+# -----------------------------------
+
+c1_a = 1
+c2_a = 1    
+
+
+# ~~ the phi_alpha group ~~ 
+ 
+def phi_a(q_i, q_j, r):
+ 
+    d = np.linalg.norm(q_j-q_i)
+    d_a = sigma_norm(d)
+    r_a = sigma_norm(r)
+    z1 = sigma_norm(q_j-q_i)
+        
+    phi_a = rho_h(z1/r_a) * phi(z1-d_a)
+    
+    return phi_a
+    
+def phi(z2,a,b,c):
+    
+    phi = 0.5*((a+b)*sigma_1(z2+c)+(a-b))
+    
+    return phi 
+        
+def a_ij(q_i, q_j, r):
+        
+    a_ij = rho_h(sigma_norm(q_j-q_i)/sigma_norm(r))
+
+    return a_ij
