@@ -62,7 +62,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
         
         line_dot = ax.plot([], [], [], 'bo')
         lines_dots.extend(line_dot)
-        line_tail = ax.plot([], [], [], '--', lw=1, color='blue')
+        line_tail = ax.plot([], [], [], ':', lw=1, color='blue')
         lines_tails.extend(line_tail)
 
     
