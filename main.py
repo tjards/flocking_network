@@ -12,27 +12,25 @@ Implement a double integrator
 
 #%% Imports
 from scipy.integrate import ode
-#from scipy.integrate import odeint
 import numpy as np
-# import matplotlib.pyplot as plt
-# import mpl_toolkits.mplot3d.axes3d as p3
-# from matplotlib import animation
 import animation 
+import ctrl_flock as flock
+import dynamics_node as node
 
 #%% Setup 
 
 # Simulation Parameters
 # ----------------
 Ti = 0      # initial time
-Tf = 5      # final time 
+Tf = 7      # final time 
 Ts = 0.1    # sample time
-nVeh = 50
+nVeh = 10
 iSpread = 3
 
 state = np.zeros((6,nVeh))
-state[0,:] = iSpread*np.random.rand(1,nVeh)    # position (x)
-state[1,:] = iSpread*np.random.rand(1,nVeh)    # position (y)
-state[2,:] = iSpread*np.random.rand(1,nVeh)    # position (z)
+state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (x)
+state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (y)
+state[2,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (z)
 state[3,:] = 0    # velocity (vx)
 state[4,:] = 0    # velocity (vy)
 state[5,:] = 0    # velocity (vz)
@@ -40,40 +38,9 @@ cmd = np.zeros((3,nVeh))
 cmd[0] = np.random.rand(1,nVeh)-0.5      # command (x)
 cmd[1] = np.random.rand(1,nVeh)-0.5      # command (y)
 cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
-landmarks = np.zeros((1,3))
-landmarks[0,0] = 0
-landmarks[0,1] = 0
-landmarks[0,2] = 0
+targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
+error = state[0:3,:] - targets
 
-
-# %% When using integration method
-
-# # Define dynamics
-# # ---------------
-# def state_dot(t, state, cmd):
-    
-#     dynDot = np.array([
-#         [state[3]],
-#         [state[4]],
-#         [state[5]],
-#         [cmd[0]],
-#         [cmd[1]],
-#         [cmd[2]]])
-    
-#     dstate = np.zeros(6)
-#     dstate[0] = dynDot[0]
-#     dstate[1] = dynDot[1]
-#     dstate[2] = dynDot[2]
-#     dstate[3] = dynDot[3]
-#     dstate[4] = dynDot[4]
-#     dstate[5] = dynDot[5]
-    
-#     return dstate
-
-# # Set integrator
-# # -------------
-# integrator = ode(state_dot).set_integrator('dopri5', first_step='0.00005', atol='10e-6', rtol='10e-6')
-# integrator.set_initial_value(state, Ti)
 
 #%% Run simulation 
 # ----------------
@@ -93,38 +60,25 @@ cmds_all[0,:,:]         = cmd
 
 # run
 while round(t,3) < Tf:
-    
-    ## integrate through dynamics (slower)
-    #integrator.set_f_params(cmd)
-    #state = integrator.integrate(t, t+Ts)
-    
-    #generate random inputs
-    if i == 20:
-        cmd[0] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (x)
-        cmd[1] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (y)
-        cmd[2] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (z)
-        
-    if i == 40:
-        cmd[0] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (x)
-        cmd[1] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (y)
-        cmd[2] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (z)
-    
-    
-    #discretized doubple integrator 
-    state[0:3,:] = state[0:3,:] + state[3:6,:]*Ts
-    state[3:6,:] = state[3:6,:] + cmd[:,:]*Ts
-            
-    t += Ts
+  
+    # evolve the inputs 
+    state = node.evolve(Ts, state, cmd)
     
     # store
     t_all[i]                = t
     states_all[i,:,:]       = state
     cmds_all[i,:,:]         = cmd
+    
+    #increment 
+    t += Ts
     i += 1
+    
+    # command for the next time step
+    cmd, error = flock.controller(Ts, i, state,cmd, nVeh, targets, error) 
     
 #%% plot
 
-ani = animation.animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh)
+ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets, nVeh)
 #plt.show()    
 
 

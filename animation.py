@@ -50,7 +50,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
     titleType2 = ax.text2D(0.95, 0.91, 'Title2', transform=ax.transAxes, horizontalalignment='right') 
     
     # plot things that never move (landmarks)
-    ax.scatter(landmarks[:,0], landmarks[:,1], landmarks[:,2], color='red', alpha=1, marker = 'o', s = 25)
+    ax.scatter(landmarks[0,:], landmarks[1,:], landmarks[2,:], color='red', alpha=1, marker = 'o', s = 25)
     
     # initial lines 
     #line1, = ax.plot([], [], [], lw=2, color='red')
