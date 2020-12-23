@@ -36,3 +36,30 @@ def controller(Ts, i, state, cmd, nVeh, targets, error_prev):
     #     cmd[2] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (z)
         
     return cmd, error
+
+
+def flock_sum(u_int, u_obs, u_nav):
+    
+    u_sum = u_int + u_obs + u_nav
+    
+    return u_sum
+
+#def u_int():
+    
+    
+# compute the sigma norm
+# - a la: Reza Olfati-Saber,"Flocking for Multi-Agent Dynamic Systems:
+# Algorithms and Theory", IEEE TRANSACTIONS ON AUTOMATIC CONTROL, 
+# Vol. 51 (3), 3 Mar 2006
+# --------------------------------------------------------------------    
+def sigma_norm(z):    
+    eps = 0.5
+    norm_sig = (1/eps)*(np.sqrt(1+eps*np.linalg.norm(z)**2)-1)
+    
+# compute n_ij
+# ------------
+def n_ij(q_i, q_j):
+    eps = 0.5
+    n_ij = np.divide(q_j-q_i,np.sqrt(1+eps*np.linalg.norm(q_j-q_i)**2))
+    
+#
