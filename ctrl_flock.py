@@ -38,28 +38,81 @@ def controller(Ts, i, state, cmd, nVeh, targets, error_prev):
     return cmd, error
 
 
+
+# Flocking equations
+# ref: Reza Olfati-Saber,"Flocking for Multi-Agent Dynamic Systems:
+# Algorithms and Theory", IEEE TRANSACTIONS ON AUTOMATIC CONTROL, 
+# Vol. 51 (3), 3 Mar 2006
+# -------------------------------------------------------------------- 
+
+# hyper parameters 
+r = 1       # interaction range 
+a = 0.5
+b = 0.7
+c = np.divide(np.abs(a-b),np.sqrt(4*a*b)) # note: (0 < a <= b, c = abs(a-b)/sqrt(4ab))
+eps = 0.5
+h = 0.5
+pi = 3.141592653589793
+
+
 def flock_sum(u_int, u_obs, u_nav):
     
     u_sum = u_int + u_obs + u_nav
     
     return u_sum
 
-#def u_int():
+
     
-    
-# compute the sigma norm
-# - a la: Reza Olfati-Saber,"Flocking for Multi-Agent Dynamic Systems:
-# Algorithms and Theory", IEEE TRANSACTIONS ON AUTOMATIC CONTROL, 
-# Vol. 51 (3), 3 Mar 2006
-# --------------------------------------------------------------------    
+# Interaction Equations (for u_alpha)
+# -----------------------------------    
+  
 def sigma_norm(z):    
-    eps = 0.5
+
     norm_sig = (1/eps)*(np.sqrt(1+eps*np.linalg.norm(z)**2)-1)
     
-# compute n_ij
-# ------------
+    return norm_sig
+    
+
 def n_ij(q_i, q_j):
-    eps = 0.5
+
     n_ij = np.divide(q_j-q_i,np.sqrt(1+eps*np.linalg.norm(q_j-q_i)**2))
     
-#
+    return n_ij
+    
+def phi_a(q_i, q_j, r):
+ 
+    d = np.linalg.norm(q_j-q_i)
+    d_a = sigma_norm(d)
+    r_a = sigma_norm(r)
+    z1 = sigma_norm(q_j-q_i)
+        
+    phi_a = rho_h(z1/r_a) * phi(z1-d_a)
+    
+    return phi_a
+    
+def phi(z2,a,b,c):
+    
+    phi = 0.5*((a+b)*sigma_1(z2+c)+(a-b))
+    
+    return phi 
+    
+    
+def sigma_1(z3):
+    
+    sigma_1 = np.divide(z3,np.sqrt(1+z3**2))
+    
+    return sigma_1
+
+def rho_h(z4):
+    
+    if 0 <= z4 < h:
+        rho_h = 1
+        
+    elif h <= z4 < 1:
+
+        rho_h = 0.5*(1+np.cos(pi*np.divide(z4-h,1-h)))
+    
+    else:
+        rho_h = 0
+  
+    return rho_h
