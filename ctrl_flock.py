@@ -15,8 +15,8 @@ def controller(Ts, i, state, cmd, nVeh, targets, error_prev):
     #targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
     
     #simple commands
-    kp = 1
-    kd = 2
+    kp = 0.3
+    kd = 4
     
     error = state[0:3,:] - targets
     derror = (error_prev - error)/Ts
@@ -111,7 +111,7 @@ def rho_h(z4):
 #from main
 #states_q = state[0:3,:]
 
-def interactions(states_q, r):
+def interactions(states_q, states_p, r):
     
     c1_a = 1
     c2_a = 1
@@ -133,7 +133,7 @@ def interactions(states_q, r):
                 # if it is within the interaction range
                 if d < r:
                     # compute the interaction command
-                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d)*n_ij(states_q[:,k_node],states_q[:,k_neigh])
+                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_q[:,k_neigh]-states_q[:,k_node])
                     
     return u_int
                     
@@ -159,8 +159,8 @@ def phi(z2):
     
     return phi 
         
-def a_ij(q_i, q_j, r):
+def a_ij(q_i, q_j, r_a):
         
-    a_ij = rho_h(sigma_norm(q_j-q_i)/sigma_norm(r))
+    a_ij = rho_h(sigma_norm(q_j-q_i)/r_a)
 
     return a_ij

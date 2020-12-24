@@ -26,6 +26,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
     x_from0 = x
     y_from0 = y
     z_from0 = z
+        
 
     # initialize plot
     fig = plt.figure()

@@ -25,7 +25,7 @@ Ti = 0      # initial time
 Tf = 7      # final time 
 Ts = 0.1    # sample time
 nVeh = 10
-iSpread = 3
+iSpread = 10
 
 state = np.zeros((6,nVeh))
 state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (x)
@@ -38,7 +38,8 @@ cmd = np.zeros((3,nVeh))
 cmd[0] = np.random.rand(1,nVeh)-0.5      # command (x)
 cmd[1] = np.random.rand(1,nVeh)-0.5      # command (y)
 cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
-targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
+#targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
+targets = np.vstack((np.ones((3,nVeh))-0.5))*2
 error = state[0:3,:] - targets
 
 
@@ -61,6 +62,12 @@ cmds_all[0,:,:]         = cmd
 # run
 while round(t,3) < Tf:
   
+    # evolve the target
+    targets[0,:] = 10*np.sin(0.02*i)*np.ones((1,nVeh))
+    targets[1,:] = 10*np.cos(0.03*i)*np.ones((1,nVeh))
+    targets[2,:] = 10*np.sin(0.04*i)*np.ones((1,nVeh))
+    
+  
     # evolve the inputs 
     state = node.evolve(Ts, state, cmd)
     
@@ -73,11 +80,14 @@ while round(t,3) < Tf:
     t += Ts
     i += 1
     
-    # command for the next time step
-    #cmd, error = flock.controller(Ts, i, state,cmd, nVeh, targets, error)
+    # command for the next time step (target)
+    cmd, error = flock.controller(Ts, i, state,cmd, nVeh, targets, error)
+    
+    # flocking part
     states_q = state[0:3,:]
-    r = 5
-    cmd = flock.interactions(states_q, r)
+    states_p = state[0:3,:]
+    r = 10
+    cmd += flock.interactions(states_q, states_p, r)
     
 #%% plot
 
