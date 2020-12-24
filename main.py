@@ -22,10 +22,10 @@ import dynamics_node as node
 # Simulation Parameters
 # ----------------
 Ti = 0      # initial time
-Tf = 7      # final time 
+Tf = 30      # final time 
 Ts = 0.1    # sample time
-nVeh = 10
-iSpread = 10
+nVeh = 20
+iSpread = 50
 
 state = np.zeros((6,nVeh))
 state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (x)
@@ -38,8 +38,18 @@ cmd = np.zeros((3,nVeh))
 cmd[0] = np.random.rand(1,nVeh)-0.5      # command (x)
 cmd[1] = np.random.rand(1,nVeh)-0.5      # command (y)
 cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
-#targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
-targets = np.vstack((np.ones((3,nVeh))-0.5))*2
+
+# initial target positions 
+targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
+#targets = np.vstack((np.ones((3,nVeh))-0.5))*2
+targets[0,:] = 10*np.sin(0.02*0)*np.ones((1,nVeh))
+targets[1,:] = 10*np.cos(0.03*0)*np.ones((1,nVeh))
+targets[2,:] = 10*np.sin(0.04*0)*np.ones((1,nVeh))
+targets[0,10:21] = -5*np.sin(0.01*0)*np.ones((1,10))
+targets[1,10:21] = -10*np.cos(0.05*0)*np.ones((1,10))
+targets[2,10:21] = 7*np.sin(0.02*0)*np.ones((1,10))
+
+
 error = state[0:3,:] - targets
 
 
@@ -63,9 +73,12 @@ cmds_all[0,:,:]         = cmd
 while round(t,3) < Tf:
   
     # evolve the target
-    targets[0,:] = 10*np.sin(0.02*i)*np.ones((1,nVeh))
-    targets[1,:] = 10*np.cos(0.03*i)*np.ones((1,nVeh))
-    targets[2,:] = 10*np.sin(0.04*i)*np.ones((1,nVeh))
+    targets[0,0:10] = 10*np.sin(0.02*i)*np.ones((1,10))
+    targets[1,0:10] = 10*np.cos(0.03*i)*np.ones((1,10))
+    targets[2,0:10] = 10*np.sin(0.04*i)*np.ones((1,10))
+    targets[0,10:21] = -5*np.sin(0.01*i)*np.ones((1,10))
+    targets[1,10:21] = -10*np.cos(0.05*i)*np.ones((1,10))
+    targets[2,10:21] = 7*np.sin(0.02*i)*np.ones((1,10))
     
   
     # evolve the inputs 
@@ -86,7 +99,7 @@ while round(t,3) < Tf:
     # flocking part
     states_q = state[0:3,:]
     states_p = state[0:3,:]
-    r = 10
+    r = 2
     cmd += flock.interactions(states_q, states_p, r)
     
 #%% plot

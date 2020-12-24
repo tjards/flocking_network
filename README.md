@@ -1,1 +1,1 @@
-# FlockingA simple implementation of flocking for large network of aerial vehiclesUnder development <p float="center">  <img src="https://github.com/tjards/flocking_network/blob/master/Figs/animation_init3.gif" width="45%" /></p><div align="left"> 
+# FlockingA simple implementation of flocking for large network of aerial vehiclesUnder development <p float="center">  <img src="https://github.com/tjards/flocking_network/blob/master/Figs/animation_init4.gif" width="45%" /></p><div align="left"> 
