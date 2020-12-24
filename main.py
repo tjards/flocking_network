@@ -22,9 +22,9 @@ import dynamics_node as node
 # Simulation Parameters
 # ----------------
 Ti = 0      # initial time
-Tf = 30      # final time 
+Tf = 10      # final time 
 Ts = 0.1    # sample time
-nVeh = 20
+nVeh = 10
 iSpread = 50
 
 state = np.zeros((6,nVeh))
@@ -45,9 +45,9 @@ targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
 targets[0,:] = 10*np.sin(0.02*0)*np.ones((1,nVeh))
 targets[1,:] = 10*np.cos(0.03*0)*np.ones((1,nVeh))
 targets[2,:] = 10*np.sin(0.04*0)*np.ones((1,nVeh))
-targets[0,10:21] = -5*np.sin(0.01*0)*np.ones((1,10))
-targets[1,10:21] = -10*np.cos(0.05*0)*np.ones((1,10))
-targets[2,10:21] = 7*np.sin(0.02*0)*np.ones((1,10))
+#targets[0,10:21] = -5*np.sin(0.01*0)*np.ones((1,10))
+#targets[1,10:21] = -10*np.cos(0.05*0)*np.ones((1,10))
+#targets[2,10:21] = 7*np.sin(0.02*0)*np.ones((1,10))
 
 
 error = state[0:3,:] - targets
@@ -76,9 +76,9 @@ while round(t,3) < Tf:
     targets[0,0:10] = 10*np.sin(0.02*i)*np.ones((1,10))
     targets[1,0:10] = 10*np.cos(0.03*i)*np.ones((1,10))
     targets[2,0:10] = 10*np.sin(0.04*i)*np.ones((1,10))
-    targets[0,10:21] = -5*np.sin(0.01*i)*np.ones((1,10))
-    targets[1,10:21] = -10*np.cos(0.05*i)*np.ones((1,10))
-    targets[2,10:21] = 7*np.sin(0.02*i)*np.ones((1,10))
+    #targets[0,10:21] = -5*np.sin(0.01*i)*np.ones((1,10))
+    #targets[1,10:21] = -10*np.cos(0.05*i)*np.ones((1,10))
+    #targets[2,10:21] = 7*np.sin(0.02*i)*np.ones((1,10))
     
   
     # evolve the inputs 
@@ -99,7 +99,7 @@ while round(t,3) < Tf:
     # flocking part
     states_q = state[0:3,:]
     states_p = state[0:3,:]
-    r = 2
+    r = 5
     cmd += flock.interactions(states_q, states_p, r)
     
 #%% plot
