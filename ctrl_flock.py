@@ -58,45 +58,31 @@ pi = 3.141592653589793
 
 # High-level equations
 # --------------------
-
-def flock_sum(u_int, u_obs, u_nav):
-    
+def flock_sum(u_int, u_obs, u_nav):    
     u_sum = u_int + u_obs + u_nav
-    
     return u_sum
 
 # ~~ common functions ~~ 
 
 def sigma_norm(z):    
-
     norm_sig = (1/eps)*(np.sqrt(1+eps*np.linalg.norm(z)**2)-1)
-    
     return norm_sig
     
 def n_ij(q_i, q_j):
-
-    n_ij = np.divide(q_j-q_i,np.sqrt(1+eps*np.linalg.norm(q_j-q_i)**2))
-    
+    n_ij = np.divide(q_j-q_i,np.sqrt(1+eps*np.linalg.norm(q_j-q_i)**2))    
     return n_ij
 
-def sigma_1(z3):
-    
-    sigma_1 = np.divide(z3,np.sqrt(1+z3**2))
-    
+def sigma_1(z3):    
+    sigma_1 = np.divide(z3,np.sqrt(1+z3**2))    
     return sigma_1
 
-def rho_h(z4):
-    
+def rho_h(z4):    
     if 0 <= z4 < h:
-        rho_h = 1
-        
+        rho_h = 1        
     elif h <= z4 < 1:
-
-        rho_h = 0.5*(1+np.cos(pi*np.divide(z4-h,1-h)))
-    
+        rho_h = 0.5*(1+np.cos(pi*np.divide(z4-h,1-h)))    
     else:
-        rho_h = 0
-  
+        rho_h = 0  
     return rho_h
 
 
@@ -104,24 +90,13 @@ def rho_h(z4):
     
 # Interaction Equations (for u_alpha)
 # -----------------------------------
-
-   
- 
-
-#from main
-#states_q = state[0:3,:]
-
-def interactions(states_q, states_p, r):
-    
+def interactions(states_q, states_p, r):   
     c1_a = 1
     c2_a = 1
-    r_a = sigma_norm(r)
-    
+    r_a = sigma_norm(r)    
     #initialize the interaction for each node
-    u_int = np.zeros((3,states_q.shape[1]))
-    
-    # // devnote: later we will want to save compute by only searching items in range
-    
+    u_int = np.zeros((3,states_q.shape[1]))    
+    # // devnote: later we will want to save compute by only searching items in range   
     # for each vehicle/node in the network
     for k_node in range(states_q.shape[1]): 
         # search through each neighbour
@@ -133,8 +108,7 @@ def interactions(states_q, states_p, r):
                 # if it is within the interaction range
                 if d < r:
                     # compute the interaction command
-                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_q[:,k_neigh]-states_q[:,k_node])
-                    
+                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_q[:,k_neigh]-states_q[:,k_node])                    
     return u_int
                     
     
@@ -143,24 +117,25 @@ def interactions(states_q, states_p, r):
 
 # ~~ the phi_alpha group ~~ 
  
-def phi_a(q_i, q_j, r_a, d):
- 
+def phi_a(q_i, q_j, r_a, d): 
     #d = np.linalg.norm(q_j-q_i)
     d_a = sigma_norm(d)
     #r_a = sigma_norm(r)
     z1 = sigma_norm(q_j-q_i)        
-    phi_a = rho_h(z1/r_a) * phi(z1-d_a)
-    
+    phi_a = rho_h(z1/r_a) * phi(z1-d_a)    
     return phi_a
     
-def phi(z2):
-    
-    phi = 0.5*((a+b)*sigma_1(z2+c)+(a-b))
-    
+def phi(z2):    
+    phi = 0.5*((a+b)*sigma_1(z2+c)+(a-b))    
     return phi 
         
-def a_ij(q_i, q_j, r_a):
-        
+def a_ij(q_i, q_j, r_a):        
     a_ij = rho_h(sigma_norm(q_j-q_i)/r_a)
-
     return a_ij
+
+# ~~ the phi_beta group ~~
+
+def b_ik(q_ik, q_j, d_a):        
+    b_ik = rho_h(sigma_norm(q_j-q_ik)/d_a)
+    return b_ik
+
