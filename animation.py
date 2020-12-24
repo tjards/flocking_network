@@ -26,6 +26,13 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
     x_from0 = x
     y_from0 = y
     z_from0 = z
+    x_v = states_all[:,3,:]
+    y_v = states_all[:,4,:]
+    z_v = states_all[:,5,:]
+    head = 3
+    x_head = states_all[:,0,:] + head*x_v
+    y_head = states_all[:,1,:] + head*x_v
+    z_head = states_all[:,2,:] + head*x_v
         
 
     # initialize plot
@@ -58,13 +65,16 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
     
     lines_dots = []
     lines_tails = []
+    lines_heads = []
     
     for i in range (0, nVeh):
         
         line_dot = ax.plot([], [], [], 'bo')
         lines_dots.extend(line_dot)
-        line_tail = ax.plot([], [], [], ':', lw=1, color='blue')
+        line_tail = ax.plot([], [], [], ':', lw=1, color=[0.5,0.5,0.5])
         lines_tails.extend(line_tail)
+        line_head = ax.plot([], [], [], '-', lw=1, color='blue')
+        lines_heads.extend(line_head)
 
     
     def update(i):
@@ -79,17 +89,33 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
         x_from0 = states_all[i*numFrames-tail:i*numFrames,0,:]
         y_from0 = states_all[i*numFrames-tail:i*numFrames,1,:]
         z_from0 = states_all[i*numFrames-tail:i*numFrames,2,:]
+        x_v = states_all[i*numFrames,3,:]
+        y_v = states_all[i*numFrames,4,:]
+        z_v = states_all[i*numFrames,5,:]
+        #norma = np.maximum(np.linalg.norm([x+x_v,y+y_v,z+z_v]),0.001)
+        norma = np.maximum(np.sqrt(x_v**2 + y_v**2 + z_v**2),0.0001)
+        x_head = x + head*x_v/norma
+        y_head = y + head*y_v/norma
+        z_head = z + head*z_v/norma
+        x_point = np.vstack((x,x_head))
+        y_point = np.vstack((y,y_head))
+        z_point = np.vstack((z,z_head))
         
         
         for j in range (0, nVeh):
             
             temp1 = lines_dots[j]
             temp2 = lines_tails[j]
+            temp3 = lines_heads[j]
+            
             temp1.set_data(x[j], y[j])
             temp1.set_3d_properties(z[j])
-            #if i > 0:
+    
             temp2.set_data(x_from0[:,j], y_from0[:,j])
             temp2.set_3d_properties(z_from0[:,j])
+            
+            temp3.set_data(x_point[:,j],y_point[:,j])
+            temp3.set_3d_properties(z_point[:,j])
 
         #line2.set_data(x, y)
         #line2.set_3d_properties(z)
