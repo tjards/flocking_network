@@ -74,7 +74,10 @@ while round(t,3) < Tf:
     i += 1
     
     # command for the next time step
-    cmd, error = flock.controller(Ts, i, state,cmd, nVeh, targets, error) 
+    #cmd, error = flock.controller(Ts, i, state,cmd, nVeh, targets, error)
+    states_q = state[0:3,:]
+    r = 5
+    cmd = flock.interactions(states_q, r)
     
 #%% plot
 
