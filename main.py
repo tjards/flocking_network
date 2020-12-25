@@ -21,11 +21,11 @@ import dynamics_node as node
 
 # Simulation Parameters
 # ----------------
-Ti = 0      # initial time
+Ti = 0       # initial time
 Tf = 10      # final time 
 Ts = 0.02    # sample time
-nVeh = 10
-iSpread = 7
+nVeh = 10    # number of vehicles
+iSpread = 7  # initial spread of vehicles 
 
 state = np.zeros((6,nVeh))
 state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (x)
@@ -80,7 +80,7 @@ while round(t,3) < Tf:
     #targets[2,10:21] = 7*np.sin(0.02*i)*np.ones((1,10))
     
   
-    # evolve the states 
+    # evolve the states (note: need to compute heading here at some point)
     state = node.evolve(Ts, state, cmd)
     
     # store
@@ -104,7 +104,7 @@ while round(t,3) < Tf:
     r_prime = 1.2*d_prime 
     
     cmd = flock.commands(states_q, states_p, r, d, r_prime, d_prime)
-    # saturate
+    
     
     
 #%% plot
