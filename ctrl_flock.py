@@ -48,11 +48,13 @@ def controller(Ts, i, state, cmd, nVeh, targets, error_prev):
 # hyper parameters 
 #r = 5       # interaction range
 a = 0.5
-b = 0.7
+b = 0.5
 c = np.divide(np.abs(a-b),np.sqrt(4*a*b)) # note: (0 < a <= b, c = abs(a-b)/sqrt(4ab))
-eps = 0.5
-h = 0.5
+eps = 0.1
+h = 0.9
 pi = 3.141592653589793
+c1_a = 2
+c2_a = 2*np.sqrt(2)
 
 
 
@@ -90,10 +92,9 @@ def rho_h(z4):
     
 # Interaction Equations (for u_alpha)
 # -----------------------------------
-def interactions(states_q, states_p, r):   
-    c1_a = 1
-    c2_a = 1
-    r_a = sigma_norm(r)    
+def interactions(states_q, states_p, r, d):   
+    r_a = sigma_norm(r)
+    d_a = sigma_norm(d)    
     #initialize the interaction for each node
     u_int = np.zeros((3,states_q.shape[1]))    
     # // devnote: later we will want to save compute by only searching items in range   
@@ -104,11 +105,11 @@ def interactions(states_q, states_p, r):
             # except for itself (duh):
             if k_node != k_neigh:
                 # compute the euc distance between them
-                d = np.linalg.norm(states_q[:,k_node]-states_q[:,k_neigh])
+                dist = np.linalg.norm(states_q[:,k_node]-states_q[:,k_neigh])
                 # if it is within the interaction range
-                if d < r:
+                if dist < r:
                     # compute the interaction command
-                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_q[:,k_neigh]-states_q[:,k_node])                    
+                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node])                    
     return u_int
                     
     
@@ -117,9 +118,9 @@ def interactions(states_q, states_p, r):
 
 # ~~ the phi_alpha group ~~ 
  
-def phi_a(q_i, q_j, r_a, d): 
+def phi_a(q_i, q_j, r_a, d_a): 
     #d = np.linalg.norm(q_j-q_i)
-    d_a = sigma_norm(d)
+    #d_a = sigma_norm(d)
     #r_a = sigma_norm(r)
     z1 = sigma_norm(q_j-q_i)        
     phi_a = rho_h(z1/r_a) * phi(z1-d_a)    

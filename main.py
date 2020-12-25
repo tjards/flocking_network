@@ -23,9 +23,9 @@ import dynamics_node as node
 # ----------------
 Ti = 0      # initial time
 Tf = 10      # final time 
-Ts = 0.1    # sample time
-nVeh = 10
-iSpread = 50
+Ts = 0.02    # sample time
+nVeh = 20
+iSpread = 7
 
 state = np.zeros((6,nVeh))
 state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (x)
@@ -93,13 +93,16 @@ while round(t,3) < Tf:
     i += 1
     
     # command for the next time step (target)
-    cmd, error = flock.controller(Ts, i, state,cmd, nVeh, targets, error)
+    #cmd, error = flock.controller(Ts, i, state,cmd, nVeh, targets, error)
     
     # flocking part
     states_q = state[0:3,:]
     states_p = state[0:3,:]
-    r = 5
-    cmd += flock.interactions(states_q, states_p, r)
+    d = 7
+    r = 1.2*d
+    cmd = flock.interactions(states_q, states_p, r, d)
+    # saturate
+    
     
 #%% plot
 

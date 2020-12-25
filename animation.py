@@ -14,7 +14,7 @@ plt.rcParams['animation.ffmpeg_path'] = '/usr/local/bin/ffmpeg' #my add - this p
 Writer = animation.writers['ffmpeg']
 writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
 
-numFrames = 1 # frame rate (bigger = slower)
+numFrames = 8 # frame rate (bigger = slower)
 tail = 8
 
 def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
@@ -29,7 +29,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
     x_v = states_all[:,3,:]
     y_v = states_all[:,4,:]
     z_v = states_all[:,5,:]
-    head = 3
+    head = 0.2
     x_head = states_all[:,0,:] + head*x_v
     y_head = states_all[:,1,:] + head*x_v
     z_head = states_all[:,2,:] + head*x_v
@@ -73,7 +73,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, landmarks, nVeh):
         lines_dots.extend(line_dot)
         line_tail = ax.plot([], [], [], ':', lw=1, color=[0.5,0.5,0.5])
         lines_tails.extend(line_tail)
-        line_head = ax.plot([], [], [], '-', lw=1, color='blue')
+        line_head = ax.plot([], [], [], '-', lw=1, color='black')
         lines_heads.extend(line_head)
 
     
