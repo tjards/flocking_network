@@ -24,7 +24,7 @@ import dynamics_node as node
 Ti = 0      # initial time
 Tf = 10      # final time 
 Ts = 0.02    # sample time
-nVeh = 20
+nVeh = 10
 iSpread = 7
 
 state = np.zeros((6,nVeh))
@@ -72,9 +72,9 @@ cmds_all[0,:,:]         = cmd
 while round(t,3) < Tf:
   
     # evolve the target
-    targets[0,0:10] = 10*np.sin(0.02*i)*np.ones((1,10))
-    targets[1,0:10] = 10*np.cos(0.03*i)*np.ones((1,10))
-    targets[2,0:10] = 10*np.sin(0.04*i)*np.ones((1,10))
+    targets[0,0:10] = 10*np.sin(0.002*i)*np.ones((1,10))
+    targets[1,0:10] = 10*np.cos(0.003*i)*np.ones((1,10))
+    targets[2,0:10] = 10*np.sin(0.004*i)*np.ones((1,10))
     #targets[0,10:21] = -5*np.sin(0.01*i)*np.ones((1,10))
     #targets[1,10:21] = -10*np.cos(0.05*i)*np.ones((1,10))
     #targets[2,10:21] = 7*np.sin(0.02*i)*np.ones((1,10))
@@ -100,7 +100,10 @@ while round(t,3) < Tf:
     states_p = state[0:3,:]
     d = 7
     r = 1.2*d
-    cmd = flock.interactions(states_q, states_p, r, d)
+    d_prime = 0.6*d
+    r_prime = 1.2*d_prime 
+    
+    cmd = flock.commands(states_q, states_p, r, d, r_prime, d_prime)
     # saturate
     
     

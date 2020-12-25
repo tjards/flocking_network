@@ -10,7 +10,7 @@ import numpy as np
 def evolve(Ts, state, cmd):
     
     # constraints
-    vmax = 2
+    vmax = 0.5
     
     #discretized doubple integrator 
     state[0:3,:] = state[0:3,:] + state[3:6,:]*Ts

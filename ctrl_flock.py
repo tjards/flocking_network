@@ -15,8 +15,8 @@ def controller(Ts, i, state, cmd, nVeh, targets, error_prev):
     #targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
     
     #simple commands
-    kp = 0.3
-    kd = 4
+    kp = 0.03
+    kd = 0.4
     
     error = state[0:3,:] - targets
     derror = (error_prev - error)/Ts
@@ -90,14 +90,21 @@ def rho_h(z4):
 
 
     
-# Interaction Equations (for u_alpha)
+# Flocking Equations 
 # -----------------------------------
-def interactions(states_q, states_p, r, d):   
+def commands(states_q, states_p, r, d, r_prime, d_prime):   
     r_a = sigma_norm(r)
-    d_a = sigma_norm(d)    
-    #initialize the interaction for each node
-    u_int = np.zeros((3,states_q.shape[1]))    
-    # // devnote: later we will want to save compute by only searching items in range   
+    d_a = sigma_norm(d)
+    r_b = sigma_norm(r_prime)
+    d_b = sigma_norm(d_prime)     
+    #initialize the terms for each node
+    u_int = np.zeros((3,states_q.shape[1]))     # interactions
+    u_obs = np.zeros((3,states_q.shape[1]))     # obstacles 
+     
+    
+    # Interaction Equations (phi_alpha)
+    # --------------------------------
+    
     # for each vehicle/node in the network
     for k_node in range(states_q.shape[1]): 
         # search through each neighbour
@@ -109,9 +116,25 @@ def interactions(states_q, states_p, r, d):
                 # if it is within the interaction range
                 if dist < r:
                     # compute the interaction command
-                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node])                    
-    return u_int
+                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node]) 
+                #if dist < r_prime:
+                    # compute the obstacle command
+                    #print('add obs avoid', k_node)                                
+    
+    # Obstacle Avoidance (phi_beta)
+    # -----------------------------
+    
+    #for each node in the network
+    for k_node in range(states_q.shape[1]):
+    
+        u_obs = u_obs
+            
+    
+    cmd = u_int + u_obs
+    
+    return cmd
                     
+    
     
     
 
