@@ -25,7 +25,7 @@ Ti = 0          # initial time
 Tf = 10         # final time 
 Ts = 0.02       # sample time
 nVeh = 10       # number of vehicles
-iSpread = 20    # initial spread of vehicles 
+iSpread = 40    # initial spread of vehicles 
 
 # vehicles state(s)
 state = np.zeros((6,nVeh))
@@ -43,18 +43,21 @@ cmd[1] = np.random.rand(1,nVeh)-0.5      # command (y)
 cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
 
 # targets
-targets = 4*(np.random.rand(3,nVeh)-0.5)
-targets[0,:] = 10*np.sin(0.004*0)*np.ones((1,nVeh))
-targets[1,:] = 10*np.cos(0.006*0)*np.ones((1,nVeh))
-targets[2,:] = 10*np.sin(0.016*0)*np.ones((1,nVeh))
-error = state[0:3,:] - targets
+targets = 4*(np.random.rand(6,nVeh)-0.5)
+targets[0,:] = 0
+targets[1,:] = 1
+targets[2,:] = 0
+targets[3,:] = 0
+targets[4,:] = 2
+targets[5,:] = 0
+error = state[0:3,:] - targets[0:3,:]
 
 # obstacles
 nObs = 5 
 obstacles = np.zeros((4,nObs))
-obstacles[0,:] = 0.7*iSpread*(np.random.rand(1,nObs)-0.5)    # position (x)
-obstacles[1,:] = 0.7*iSpread*(np.random.rand(1,nObs)-0.5)    # position (y)
-obstacles[2,:] = 0.7*iSpread*(np.random.rand(1,nObs)-0.5)    # position (z)
+obstacles[0,:] = 7*iSpread*(np.random.rand(1,nObs)-0.5)    # position (x)
+obstacles[1,:] = 7*iSpread*(np.random.rand(1,nObs)-0.5)    # position (y)
+obstacles[2,:] = 7*iSpread*(np.random.rand(1,nObs)-0.5)    # position (z)
 obstacles[3,:] = np.random.rand(1,nObs)+0.5                  # radii of obstacle(s)
 
 
@@ -83,9 +86,9 @@ obstacles_all[0,:,:]    = obstacles
 while round(t,3) < Tf:
   
     # move the target
-    targets[0,0:10] = 10*np.sin(0.004*i)*np.ones((1,10))
-    targets[1,0:10] = 10*np.cos(0.006*i)*np.ones((1,10))
-    targets[2,0:10] = 10*np.sin(0.016*i)*np.ones((1,10))
+    #targets[0,0:10] = 10*np.sin(0.004*i)*np.ones((1,10))
+    targets[1,:] = 2*i*0.02
+    #targets[2,0:10] = 10*np.sin(0.016*i)*np.ones((1,10))
 
     # evolve the states (note: need to compute heading here at some point)
     state = node.evolve(Ts, state, cmd)
@@ -102,7 +105,7 @@ while round(t,3) < Tf:
     i += 1
     
     # command for the next time step (target)
-    cmd, error = flock.controller(Ts, i, state,cmd, nVeh, targets, error)
+    #cmd, error = flock.controller(Ts, i, state,cmd, nVeh, targets, error)
     
     # flocking part
     states_q = state[0:3,:]
@@ -112,13 +115,13 @@ while round(t,3) < Tf:
     d_prime = 0.6*d
     r_prime = 1.2*d_prime 
    
-    cmd += flock.commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets)
+    cmd = flock.commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets[0:3,:], targets[3:6,:])
     
     
     
 #%% plot
 
-ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all)
+ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all)
 #plt.show()    
 
 

@@ -55,7 +55,10 @@ h = 0.9
 pi = 3.141592653589793
 c1_a = 2
 c2_a = 2*np.sqrt(2)
-
+c1_b = 3
+c2_b = 2*np.sqrt(3)
+c1_g = 1
+c2_g = 2*np.sqrt(1)
 
 
 # High-level equations
@@ -92,7 +95,7 @@ def rho_h(z4):
     
 # Flocking Equations 
 # -----------------------------------
-def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets):   
+def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets, targets_v):   
     r_a = sigma_norm(r)
     d_a = sigma_norm(d)
     r_b = sigma_norm(r_prime)
@@ -100,11 +103,12 @@ def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets):
     #initialize the terms for each node
     u_int = np.zeros((3,states_q.shape[1]))     # interactions
     u_obs = np.zeros((3,states_q.shape[1]))     # obstacles 
+    u_nav = np.zeros((3,states_q.shape[1]))     # navigation
     
     # for each vehicle/node in the network
     for k_node in range(states_q.shape[1]): 
         
-    # Interaction Equations (phi_alpha)
+    # Interaction term (phi_alpha)
     # --------------------------------            
         # search through each neighbour
         for k_neigh in range(states_q.shape[1]):
@@ -115,18 +119,39 @@ def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets):
                 # if it is within the interaction range
                 if dist < r:
                     # compute the interaction command
-                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node]) 
+                    u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + c2_a*a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node]) 
                                
     
-    # Obstacle Avoidance (phi_beta)
-    # -----------------------------   
-        #search through each obstacle 
+    # Obstacle Avoidance term (phi_beta)
+    # ---------------------------------   
+        # search through each obstacle 
         for k_obstacle in range(obstacles.shape[1]):
+
+            # compute norm between this node and this obstacle
+            normo = np.linalg.norm(states_q[:,k_node]-obstacles[0:3,k_obstacle])
+            # compute mu
+            mu = np.divide(obstacles[3, k_obstacle],normo)
+            # compute bold_a_k (for the projection matrix)
+            bold_a_k = np.divide(states_q[:,k_node]-obstacles[0:3,k_obstacle],normo)
+            # compute projection matrix
+            P = np.identity(states_p.shape[0]) - np.dot(bold_a_k,bold_a_k.transpose())
+            # compute beta-agent position and velocity
+            q_ik = mu*states_q[:,k_node]+(1-mu)*obstacles[0:3,k_obstacle]
+            # compute distance to beta-agent
+            dist_b = np.linalg.norm(q_ik-states_q[:,k_node])
+            # if it is with the beta range
+            if dist_b < r_prime:
+                # compute the beta command
+                p_ik = mu*np.dot(P,states_p[:,k_node])    
+                u_obs[:,k_node] += c1_b*phi_b(states_q[:,k_node], q_ik, d_b)*n_ij(states_q[:,k_node], q_ik) + c2_b*b_ik(states_q[:,k_node], q_ik, d_b)*(p_ik - states_p[:,k_node])
+               
+    # Navigation term (phi_gamma)
+    # ---------------------------
+        #velo_r = 0 # place holder. Need desired velos as well (zero for now, but his is not ideal)
+        u_nav[:,k_node] = - c1_g*sigma_1(states_q[:,k_node]-targets[:,k_node])-c2_g*(states_p[:,k_node] - targets_v[:,k_node])
     
-            u_obs = u_obs
-            
     
-    cmd = u_int + u_obs
+    cmd = u_int + u_obs + u_nav
     
     return cmd
                     
@@ -155,7 +180,11 @@ def a_ij(q_i, q_j, r_a):
 
 # ~~ the phi_beta group ~~
 
-def b_ik(q_ik, q_j, d_a):        
-    b_ik = rho_h(sigma_norm(q_j-q_ik)/d_a)
+def b_ik(q_i, q_ik, d_b):        
+    b_ik = rho_h(sigma_norm(q_ik-q_i)/d_b)
     return b_ik
 
+def phi_b(q_i, q_ik, d_b): 
+    z6 = sigma_norm(q_ik-q_i)        
+    phi_b = rho_h(z6/d_b) * (sigma_1(z6-d_b)-1)    
+    return phi_b
