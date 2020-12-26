@@ -121,7 +121,7 @@ def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets):
     # Obstacle Avoidance (phi_beta)
     # -----------------------------   
         #search through each obstacle 
-        for k_obstacle in range(states_q.shape[1]):
+        for k_obstacle in range(obstacles.shape[1]):
     
             u_obs = u_obs
             

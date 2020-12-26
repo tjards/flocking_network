@@ -21,20 +21,20 @@ import dynamics_node as node
 
 # Simulation Parameters
 # ----------------
-Ti = 0       # initial time
-Tf = 10      # final time 
-Ts = 0.02    # sample time
-nVeh = 10    # number of vehicles
-iSpread = 20  # initial spread of vehicles 
+Ti = 0          # initial time
+Tf = 10         # final time 
+Ts = 0.02       # sample time
+nVeh = 10       # number of vehicles
+iSpread = 20    # initial spread of vehicles 
 
 # vehicles state(s)
 state = np.zeros((6,nVeh))
-state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (x)
-state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (y)
-state[2,:] = iSpread*(np.random.rand(1,nVeh)-0.5)    # position (z)
-state[3,:] = 0    # velocity (vx)
-state[4,:] = 0    # velocity (vy)
-state[5,:] = 0    # velocity (vz)
+state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (x)
+state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (y)
+state[2,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (z)
+state[3,:] = 0                                      # velocity (vx)
+state[4,:] = 0                                      # velocity (vy)
+state[5,:] = 0                                      # velocity (vz)
 
 # commands
 cmd = np.zeros((3,nVeh))
@@ -82,7 +82,7 @@ obstacles_all[0,:,:]    = obstacles
 # run
 while round(t,3) < Tf:
   
-    # evolve the target
+    # move the target
     targets[0,0:10] = 10*np.sin(0.004*i)*np.ones((1,10))
     targets[1,0:10] = 10*np.cos(0.006*i)*np.ones((1,10))
     targets[2,0:10] = 10*np.sin(0.016*i)*np.ones((1,10))
