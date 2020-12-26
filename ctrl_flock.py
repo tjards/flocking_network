@@ -8,34 +8,8 @@ Created on Tue Dec 22 20:11:52 2020
 
 import numpy as np
 
-def controller(Ts, i, state, cmd, nVeh, targets, error_prev):
-    
-    
-    #generate random targets
-    #targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
-    
-    #simple commands
-    kp = 0.03
-    kd = 0.4
-    
-    error = state[0:3,:] - targets
-    derror = (error_prev - error)/Ts
-    
-    cmd = -kp*error + kd*derror
-    
-    
-    # #generate random inputs
-    # if i == 20:
-    #     cmd[0] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (x)
-    #     cmd[1] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (y)
-    #     cmd[2] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (z)
-        
-    # if i == 40:
-    #     cmd[0] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (x)
-    #     cmd[1] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (y)
-    #     cmd[2] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (z)
-        
-    return cmd, error
+
+
 
 
 
@@ -61,13 +35,8 @@ c1_g = 1
 c2_g = 2*np.sqrt(1)
 
 
-# High-level equations
-# --------------------
-def flock_sum(u_int, u_obs, u_nav):    
-    u_sum = u_int + u_obs + u_nav
-    return u_sum
-
-# ~~ common functions ~~ 
+# Some function that are used often
+# ---------------------------------
 
 def sigma_norm(z):    
     norm_sig = (1/eps)*(np.sqrt(1+eps*np.linalg.norm(z)**2)-1)
@@ -77,19 +46,43 @@ def n_ij(q_i, q_j):
     n_ij = np.divide(q_j-q_i,np.sqrt(1+eps*np.linalg.norm(q_j-q_i)**2))    
     return n_ij
 
-def sigma_1(z3):    
-    sigma_1 = np.divide(z3,np.sqrt(1+z3**2))    
+def sigma_1(z):    
+    sigma_1 = np.divide(z,np.sqrt(1+z**2))    
     return sigma_1
 
-def rho_h(z4):    
-    if 0 <= z4 < h:
+def rho_h(z):    
+    if 0 <= z < h:
         rho_h = 1        
-    elif h <= z4 < 1:
-        rho_h = 0.5*(1+np.cos(pi*np.divide(z4-h,1-h)))    
+    elif h <= z < 1:
+        rho_h = 0.5*(1+np.cos(pi*np.divide(z-h,1-h)))    
     else:
         rho_h = 0  
     return rho_h
+ 
+def phi_a(q_i, q_j, r_a, d_a): 
+    #d = np.linalg.norm(q_j-q_i)
+    #d_a = sigma_norm(d)
+    #r_a = sigma_norm(r)
+    z = sigma_norm(q_j-q_i)        
+    phi_a = rho_h(z/r_a) * phi(z-d_a)    
+    return phi_a
+    
+def phi(z):    
+    phi = 0.5*((a+b)*sigma_1(z+c)+(a-b))    
+    return phi 
+        
+def a_ij(q_i, q_j, r_a):        
+    a_ij = rho_h(sigma_norm(q_j-q_i)/r_a)
+    return a_ij
 
+def b_ik(q_i, q_ik, d_b):        
+    b_ik = rho_h(sigma_norm(q_ik-q_i)/d_b)
+    return b_ik
+
+def phi_b(q_i, q_ik, d_b): 
+    z = sigma_norm(q_ik-q_i)        
+    phi_b = rho_h(z/d_b) * (sigma_1(z-d_b)-1)    
+    return phi_b
 
 
     
@@ -157,34 +150,40 @@ def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets, tar
                     
     
     
-    
 
 
-# ~~ the phi_alpha group ~~ 
- 
-def phi_a(q_i, q_j, r_a, d_a): 
-    #d = np.linalg.norm(q_j-q_i)
-    #d_a = sigma_norm(d)
-    #r_a = sigma_norm(r)
-    z1 = sigma_norm(q_j-q_i)        
-    phi_a = rho_h(z1/r_a) * phi(z1-d_a)    
-    return phi_a
+
+
+
+
+#%% PD controller for testing 
+
+
+# def controller(Ts, i, state, cmd, nVeh, targets, error_prev):
     
-def phi(z2):    
-    phi = 0.5*((a+b)*sigma_1(z2+c)+(a-b))    
-    return phi 
+    
+#     #generate random targets
+#     #targets = np.vstack(20*(np.random.rand(3,nVeh)-0.5))
+    
+#     #simple commands
+#     kp = 0.03
+#     kd = 0.4
+    
+#     error = state[0:3,:] - targets
+#     derror = (error_prev - error)/Ts
+    
+#     cmd = -kp*error + kd*derror
+    
+    
+#     # #generate random inputs
+#     # if i == 20:
+#     #     cmd[0] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (x)
+#     #     cmd[1] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (y)
+#     #     cmd[2] = - 0.5*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (z)
         
-def a_ij(q_i, q_j, r_a):        
-    a_ij = rho_h(sigma_norm(q_j-q_i)/r_a)
-    return a_ij
-
-# ~~ the phi_beta group ~~
-
-def b_ik(q_i, q_ik, d_b):        
-    b_ik = rho_h(sigma_norm(q_ik-q_i)/d_b)
-    return b_ik
-
-def phi_b(q_i, q_ik, d_b): 
-    z6 = sigma_norm(q_ik-q_i)        
-    phi_b = rho_h(z6/d_b) * (sigma_1(z6-d_b)-1)    
-    return phi_b
+#     # if i == 40:
+#     #     cmd[0] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (x)
+#     #     cmd[1] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (y)
+#     #     cmd[2] = - 1*cmd[0] + np.random.rand(1,nVeh)-0.5      # command (z)
+        
+#     return cmd, error
