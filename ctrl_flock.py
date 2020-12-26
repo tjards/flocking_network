@@ -92,7 +92,7 @@ def rho_h(z4):
     
 # Flocking Equations 
 # -----------------------------------
-def commands(states_q, states_p, r, d, r_prime, d_prime):   
+def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets):   
     r_a = sigma_norm(r)
     d_a = sigma_norm(d)
     r_b = sigma_norm(r_prime)
@@ -100,13 +100,12 @@ def commands(states_q, states_p, r, d, r_prime, d_prime):
     #initialize the terms for each node
     u_int = np.zeros((3,states_q.shape[1]))     # interactions
     u_obs = np.zeros((3,states_q.shape[1]))     # obstacles 
-     
-    
-    # Interaction Equations (phi_alpha)
-    # --------------------------------
     
     # for each vehicle/node in the network
     for k_node in range(states_q.shape[1]): 
+        
+    # Interaction Equations (phi_alpha)
+    # --------------------------------            
         # search through each neighbour
         for k_neigh in range(states_q.shape[1]):
             # except for itself (duh):
@@ -117,17 +116,14 @@ def commands(states_q, states_p, r, d, r_prime, d_prime):
                 if dist < r:
                     # compute the interaction command
                     u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node]) 
-                #if dist < r_prime:
-                    # compute the obstacle command
-                    #print('add obs avoid', k_node)                                
+                               
     
     # Obstacle Avoidance (phi_beta)
-    # -----------------------------
+    # -----------------------------   
+        #search through each obstacle 
+        for k_obstacle in range(states_q.shape[1]):
     
-    #for each node in the network
-    for k_node in range(states_q.shape[1]):
-    
-        u_obs = u_obs
+            u_obs = u_obs
             
     
     cmd = u_int + u_obs

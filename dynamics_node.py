@@ -10,12 +10,11 @@ import numpy as np
 def evolve(Ts, state, cmd):
     
     # constraints
-    vmax = 0.5
+    vmax = 5
     
     #discretized doubple integrator 
     state[0:3,:] = state[0:3,:] + state[3:6,:]*Ts
     #state[3:6,:] = state[3:6,:] + cmd[:,:]*Ts
-    
     state[3:6,:] = np.minimum(np.maximum(state[3:6,:] + cmd[:,:]*Ts, -vmax), vmax)
     
     return state
