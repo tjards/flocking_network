@@ -14,10 +14,10 @@ plt.rcParams['animation.ffmpeg_path'] = '/usr/local/bin/ffmpeg' #my add - this p
 Writer = animation.writers['ffmpeg']
 writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
 
-numFrames = 8 # frame rate (bigger = slower)
+numFrames = 10 # frame rate (bigger = slower)
 tail = 8
 
-def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all):
+def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r):
     
     # pull out positions
     nVeh = states_all.shape[2]
@@ -63,8 +63,8 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all):
     
     #labels
     titleTime = ax.text2D(0.05, 0.95, "", transform=ax.transAxes)
-    titleType1 = ax.text2D(0.95, 0.95, 'Title1', transform=ax.transAxes, horizontalalignment='right')
-    titleType2 = ax.text2D(0.95, 0.91, 'Title2', transform=ax.transAxes, horizontalalignment='right') 
+    titleType1 = ax.text2D(0.95, 0.95, 'Swarming', transform=ax.transAxes, horizontalalignment='right')
+    #titleType2 = ax.text2D(0.95, 0.91, 'Title2', transform=ax.transAxes, horizontalalignment='right') 
     
     # plot things that never move (targets, for now)
     #ax.scatter(targets[0,:], targets[1,:], targets[2,:], color='red', alpha=1, marker = 'o', s = 25)
@@ -77,6 +77,9 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all):
     lines_targets = []
     lines_obstacles = []
     
+    #lattice = ax.plot([], [], [], '-', lw=1, color='cyan')
+    lattices = []
+    
     for i in range (0, nVeh):
         
         line_dot = ax.plot([], [], [], 'bo')
@@ -87,6 +90,9 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all):
         lines_heads.extend(line_head)
         line_target = ax.plot([], [], [], 'go')
         lines_targets.extend(line_target)
+        
+        lattice = ax.plot([], [], [], ':', lw=1, color='blue')
+        lattices.extend(lattice)
 
     for j in range (0, nObs):
         
@@ -124,7 +130,45 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all):
         z_o = obstacles_all[i*numFrames,2,:]
         r_o = obstacles_all[i*numFrames,3,:]
         
+        pos = states_all[i*numFrames,0:3,:]
+        x_lat = np.zeros((nVeh,nVeh))
+        y_lat = np.zeros((nVeh,nVeh))
+        z_lat = np.zeros((nVeh,nVeh))
+
+           
+        # build lattice
+        # -------------
+        for j in range (0, nVeh):
         
+            temp_lat = lattices[j]    
+        
+            # search through each neighbour
+            for k_neigh in range(pos.shape[1]):
+                # except for itself (duh):
+                if j != k_neigh:
+                    # compute the euc distance between them
+                    dist = np.linalg.norm(pos[:,j]-pos[:,k_neigh])
+                    # if it is within the interaction range
+                    if dist < r: 
+                        x_lat[k_neigh,j] = pos[0,k_neigh]
+                        y_lat[k_neigh,j] = pos[1,k_neigh]
+                        z_lat[k_neigh,j] = pos[2,k_neigh]
+                    else:
+                        x_lat[k_neigh,j] = pos[0,j]
+                        y_lat[k_neigh,j] = pos[1,j]
+                        z_lat[k_neigh,j] = pos[2,j]
+                else:
+                    x_lat[k_neigh,j] = pos[0,j]
+                    y_lat[k_neigh,j] = pos[1,j]
+                    z_lat[k_neigh,j] = pos[2,j]
+                        
+            
+            temp_lat.set_data(x_lat[:,j], y_lat[:,j])
+            temp_lat.set_3d_properties(z_lat[:,j])    
+        
+        
+        # plot states... etc
+        # ------------------
         for j in range (0, nVeh):
             
             temp1 = lines_dots[j]
@@ -132,18 +176,51 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all):
             temp3 = lines_heads[j]
             temp4 = lines_targets[j]
             
+            #temp_lat = lattices[j]
+            
             temp1.set_data(x[j], y[j])
             temp1.set_3d_properties(z[j])
     
             temp2.set_data(x_from0[:,j], y_from0[:,j])
             temp2.set_3d_properties(z_from0[:,j])
             
-            temp3.set_data(x_point[:,j],y_point[:,j])
-            temp3.set_3d_properties(z_point[:,j])
+            #temp3.set_data(x_point[:,j],y_point[:,j])
+            #temp3.set_3d_properties(z_point[:,j])
             
             temp4.set_data(x_t[j], y_t[j])
             temp4.set_3d_properties(z_t[j])
+                       
+            # # search through each neighbour
+            # r = 1.2 # (this will need to be brought in on the call)
+            # for k_neigh in range(pos.shape[1]):
+            #     # except for itself (duh):
+            #     if j != k_neigh:
+            #         # compute the euc distance between them
+            #         dist = np.linalg.norm(pos[:,j]-pos[:,k_neigh])
+            #         # if it is within the interaction range
+            #         if dist < r: 
+            #             x_lat[k_neigh,j] = pos[0,k_neigh]
+            #             y_lat[k_neigh,j] = pos[1,k_neigh]
+            #             z_lat[k_neigh,j] = pos[2,k_neigh]
+            #         else:
+            #             x_lat[k_neigh,j] = pos[0,j]
+            #             y_lat[k_neigh,j] = pos[1,j]
+            #             z_lat[k_neigh,j] = pos[2,j]
+            #     else:
+            #         x_lat[k_neigh,j] = pos[0,j]
+            #         y_lat[k_neigh,j] = pos[1,j]
+            #         z_lat[k_neigh,j] = pos[2,j]
+                        
             
+            # temp_lat.set_data(x_lat[:,j], y_lat[:,j])
+            # temp_lat.set_3d_properties(z_lat[:,j])
+            
+            temp3.set_data(x_point[:,j],y_point[:,j])
+            temp3.set_3d_properties(z_point[:,j])
+                              
+        
+        # build obstacles
+        # ---------------
         for k in range (0, nObs):
             
             temp5 = lines_obstacles[k]
@@ -156,6 +233,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all):
         #line3.set_data(x_from0, y_from0)
         #line3.set_3d_properties(z_from0)
         titleTime.set_text(u"Time = {:.2f} s".format(time))
+        
         
         return lines_dots, lines_tails, titleTime, lines_targets, lines_obstacles
     

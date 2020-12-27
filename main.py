@@ -27,11 +27,11 @@ import dynamics_node as node
 #%% Setup Simulation
 # ------------------
 Ti = 0          # initial time
-Tf = 10         # final time 
+Tf = 60         # final time 
 Ts = 0.02       # sample time
 nVeh = 10       # number of vehicles
-nObs = 5        # number of obstacles
-iSpread = 2     # initial spread of vehicles 
+nObs = 10        # number of obstacles
+iSpread = 20     # initial spread of vehicles 
 
 # Vehicles states
 # ---------------
@@ -90,8 +90,8 @@ while round(t,3) < Tf:
   
     # Evolve the target
     # -----------------
-    targets[0,:] = targets[0,:] + 0.001
-    targets[1,:] = targets[1,:] + 0.002
+    targets[0,:] = targets[0,:] + 0.002
+    targets[1,:] = targets[1,:] + 0.005
     targets[2,:] = targets[2,:] + 0.0005
 
 
@@ -116,7 +116,7 @@ while round(t,3) < Tf:
     # ----------------------------
     states_q = state[0:3,:]     # positions
     states_p = state[3:6,:]     # velocities 
-    d = 1                       # lattice scale (distance between a-agents)
+    d = 5                       # lattice scale (distance between a-agents)
     r = 1.2*d                   # interaction range of a-agents
     d_prime = 0.6*d             # distance between a- and b-agents
     r_prime = 1.2*d_prime       # interaction range of a- and b-agents
@@ -128,7 +128,7 @@ while round(t,3) < Tf:
 #%% Produce animation of simulation
 # ---------------------------------
 
-ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all)
+ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, r)
 #plt.show()    
 
 
