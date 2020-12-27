@@ -3,31 +3,38 @@
 """
 Created on Tue Dec 22 11:48:18 2020
 
-Implement a double integrator 
-
+The project implements 3_D flocking on a double-integrator model, as
+described in:
+    
+Olfati-Saber, R, "Flocking for Multi-Agent Dynamic Systems:
+Algorithms and Theory", IEEE TRANSACTIONS ON AUTOMATIC CONTROL, 
+Vol. 51 (3), 3 Mar 2006
 
 @author: tjards
+
 """
 
 
-#%% Imports
+#%% Import stuff
+# --------------
+
 from scipy.integrate import ode
 import numpy as np
 import animation 
 import ctrl_flock as flock
 import dynamics_node as node
 
-#%% Setup 
-
-# Simulation Parameters
-# ----------------
+#%% Simulation Parameters
+# -----------------------
 Ti = 0          # initial time
 Tf = 30         # final time 
 Ts = 0.02       # sample time
 nVeh = 10       # number of vehicles
-iSpread = 2    # initial spread of vehicles 
+nObs = 5        # number of obstacles
+iSpread = 2     # initial spread of vehicles 
 
-# vehicles state(s)
+# Vehicles states
+# ---------------
 state = np.zeros((6,nVeh))
 state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (x)
 state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (y)
@@ -36,13 +43,15 @@ state[3,:] = 0                                      # velocity (vx)
 state[4,:] = 0                                      # velocity (vy)
 state[5,:] = 0                                      # velocity (vz)
 
-# commands
+# Commands
+# --------
 cmd = np.zeros((3,nVeh))
 cmd[0] = np.random.rand(1,nVeh)-0.5      # command (x)
 cmd[1] = np.random.rand(1,nVeh)-0.5      # command (y)
 cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
 
-# targets
+# Targets
+# -------
 targets = 4*(np.random.rand(6,nVeh)-0.5)
 targets[0,:] = 1
 targets[1,:] = 1
@@ -52,8 +61,8 @@ targets[4,:] = 0
 targets[5,:] = 0
 error = state[0:3,:] - targets[0:3,:]
 
-# obstacles
-nObs = 5 
+# Obstacles
+# --------
 obstacles = np.zeros((4,nObs))
 obstacles[0,:] = 5*iSpread*(np.random.rand(1,nObs)-0.5)    # position (x)
 obstacles[1,:] = 5*iSpread*(np.random.rand(1,nObs)-0.5)    # position (y)
