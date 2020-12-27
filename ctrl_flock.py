@@ -1,6 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
+The project implements 3_D flocking as described in:
+    
+Reza Olfati-Saber,"Flocking for Multi-Agent Dynamic Systems:
+Algorithms and Theory", IEEE TRANSACTIONS ON AUTOMATIC CONTROL, 
+Vol. 51 (3), 3 Mar 2006
+
 Created on Tue Dec 22 20:11:52 2020
 
 @author: tjards
@@ -9,21 +15,11 @@ Created on Tue Dec 22 20:11:52 2020
 import numpy as np
 
 
-
-
-
-
-# Flocking equations
-# ref: Reza Olfati-Saber,"Flocking for Multi-Agent Dynamic Systems:
-# Algorithms and Theory", IEEE TRANSACTIONS ON AUTOMATIC CONTROL, 
-# Vol. 51 (3), 3 Mar 2006
-# ================================================================
-
-# hyper parameters 
-#r = 5       # interaction range
+#%% Setup flocking hyperparameters
+# ================================
 a = 0.5
 b = 0.5
-c = np.divide(np.abs(a-b),np.sqrt(4*a*b)) # note: (0 < a <= b, c = abs(a-b)/sqrt(4ab))
+c = np.divide(np.abs(a-b),np.sqrt(4*a*b)) 
 eps = 0.1
 h = 0.9
 pi = 3.141592653589793
@@ -60,9 +56,6 @@ def rho_h(z):
     return rho_h
  
 def phi_a(q_i, q_j, r_a, d_a): 
-    #d = np.linalg.norm(q_j-q_i)
-    #d_a = sigma_norm(d)
-    #r_a = sigma_norm(r)
     z = sigma_norm(q_j-q_i)        
     phi_a = rho_h(z/r_a) * phi(z-d_a)    
     return phi_a
@@ -87,13 +80,14 @@ def phi_b(q_i, q_ik, d_b):
 
     
 # Flocking Equations 
-# -----------------------------------
+# -------------------
 def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets, targets_v):   
+    
+    # initialize 
     r_a = sigma_norm(r)
     d_a = sigma_norm(d)
     r_b = sigma_norm(r_prime)
     d_b = sigma_norm(d_prime)     
-    #initialize the terms for each node
     u_int = np.zeros((3,states_q.shape[1]))     # interactions
     u_obs = np.zeros((3,states_q.shape[1]))     # obstacles 
     u_nav = np.zeros((3,states_q.shape[1]))     # navigation
@@ -113,8 +107,7 @@ def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets, tar
                 if dist < r:
                     # compute the interaction command
                     u_int[:,k_node] += c1_a*phi_a(states_q[:,k_node],states_q[:,k_neigh],r_a, d_a)*n_ij(states_q[:,k_node],states_q[:,k_neigh]) + c2_a*a_ij(states_q[:,k_node],states_q[:,k_neigh],r_a)*(states_p[:,k_neigh]-states_p[:,k_node]) 
-                               
-    
+                                  
     # Obstacle Avoidance term (phi_beta)
     # ---------------------------------   
         # search through each obstacle 
@@ -156,7 +149,8 @@ def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets, tar
 
 
 
-#%% PD controller for testing 
+#%% PD controller (was used for testing)
+# ------------------------------------- 
 
 
 # def controller(Ts, i, state, cmd, nVeh, targets, error_prev):

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Tue Dec 22 11:48:18 2020
-
 The project implements 3_D flocking on a double-integrator model, as
 described in:
     
 Olfati-Saber, R, "Flocking for Multi-Agent Dynamic Systems:
 Algorithms and Theory", IEEE TRANSACTIONS ON AUTOMATIC CONTROL, 
 Vol. 51 (3), 3 Mar 2006
+
+Created on Tue Dec 22 11:48:18 2020
 
 @author: tjards
 
