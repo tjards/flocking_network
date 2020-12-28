@@ -27,7 +27,7 @@ import dynamics_node as node
 #%% Setup Simulation
 # ------------------
 Ti = 0          # initial time
-Tf = 10         # final time 
+Tf = 30         # final time 
 Ts = 0.02       # sample time
 nVeh = 20       # number of vehicles
 nObs = 10        # number of obstacles
@@ -38,7 +38,7 @@ iSpread = 10     # initial spread of vehicles
 state = np.zeros((6,nVeh))
 state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (x)
 state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (y)
-state[2,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (z)
+state[2,:] = np.maximum(iSpread*(np.random.rand(1,nVeh)+1.5),0.5)   # position (z)
 state[3,:] = 0                                      # velocity (vx)
 state[4,:] = 0                                      # velocity (vy)
 state[5,:] = 0                                      # velocity (vz)
@@ -53,9 +53,9 @@ cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
 # Targets
 # -------
 targets = 4*(np.random.rand(6,nVeh)-0.5)
-targets[0,:] = 1
-targets[1,:] = 1
-targets[2,:] = 1
+targets[0,:] = iSpread/2
+targets[1,:] = iSpread/2
+targets[2,:] = iSpread
 targets[3,:] = 0
 targets[4,:] = 0
 targets[5,:] = 0
@@ -66,8 +66,29 @@ error = state[0:3,:] - targets[0:3,:]
 obstacles = np.zeros((4,nObs))
 obstacles[0,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (x)
 obstacles[1,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (y)
-obstacles[2,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (z)
+obstacles[2,:] = np.maximum(iSpread*(np.random.rand(1,nObs)+1.5),2)    # position (z)
 obstacles[3,:] = np.random.rand(1,nObs)+0.5              # radii of obstacle(s)
+
+# Walls (obstacle planes)
+# -----------------------
+# need to compute the normal and point (cross product)
+nWalls = 1  
+walls = np.zeros((6,nWalls))                        # just do 1 for now
+# define 3 points on the plane (this one is horizontal)
+wallp1 = np.array([0, 0, 0])
+wallp2 = np.array([1, 1, 0])
+wallp3 = np.array([2, 3, 0])
+# define two vectors on the plane
+v1 = wallp3 - wallp1
+v2 = wallp2 - wallp1
+# compute vector normal to the plane
+wallcp = np.cross(v1, v2)
+walla, wallb, wallc = wallcp
+# compute rest of equation for plane
+walld = np.dot(wallcp, wallp3)
+# store as walls
+walls[0:3] = np.array(wallcp, ndmin=2).transpose()
+walls[3:6] = np.array(wallp1, ndmin=2).transpose()
 
 
 #%% Run Simulation
@@ -121,7 +142,7 @@ while round(t,3) < Tf:
     d_prime = 0.6*d             # distance between a- and b-agents
     r_prime = 1.2*d_prime       # interaction range of a- and b-agents
     
-    cmd = flock.commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets[0:3,:], targets[3:6,:])
+    cmd = flock.commands(states_q, states_p, obstacles, walls, r, d, r_prime, d_prime, targets[0:3,:], targets[3:6,:])
     
     
     

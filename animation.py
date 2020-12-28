@@ -82,7 +82,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d)
     
     for i in range (0, nVeh):
         
-        line_dot = ax.plot([], [], [], 'bo')
+        line_dot = ax.plot([], [], [], 'bs')
         lines_dots.extend(line_dot)
         line_tail = ax.plot([], [], [], ':', lw=1, color=[0.5,0.5,0.5])
         lines_tails.extend(line_tail)

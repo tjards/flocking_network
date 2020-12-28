@@ -81,7 +81,7 @@ def phi_b(q_i, q_ik, d_b):
     
 # Flocking Equations 
 # -------------------
-def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets, targets_v):   
+def commands(states_q, states_p, obstacles, walls, r, d, r_prime, d_prime, targets, targets_v):   
     
     # initialize 
     r_a = sigma_norm(r)
@@ -131,6 +131,23 @@ def commands(states_q, states_p, obstacles, r, d, r_prime, d_prime, targets, tar
                 p_ik = mu*np.dot(P,states_p[:,k_node])    
                 u_obs[:,k_node] += c1_b*phi_b(states_q[:,k_node], q_ik, d_b)*n_ij(states_q[:,k_node], q_ik) + c2_b*b_ik(states_q[:,k_node], q_ik, d_b)*(p_ik - states_p[:,k_node])
                
+        # search through each wall (a planar obstacle)
+        for k_wall in range(walls.shape[1]):
+            
+            # define the wall
+            bold_a_k = walls[0:3,k_wall]    # normal vector
+            y_k = walls[3:6,k_wall]         # point on plane
+            # compute the projection matrix
+            P = np.identity(y_k.shape[0]) - np.dot(bold_a_k,bold_a_k.transpose())
+            # compute the beta_agent 
+            q_ik = np.dot(P,states_q[:,k_node]) + np.dot((np.identity(y_k.shape[0])-P),y_k)
+            # compute distance to beta-agent
+            dist_b = np.linalg.norm(q_ik-states_q[:,k_node])
+            # if it is with the beta range
+            if dist_b < r_prime:
+                p_ik = np.dot(P,states_p[:,k_node])
+                u_obs[:,k_node] += c1_b*phi_b(states_q[:,k_node], q_ik, d_b)*n_ij(states_q[:,k_node], q_ik) + c2_b*b_ik(states_q[:,k_node], q_ik, d_b)*(p_ik - states_p[:,k_node])
+    
     # Navigation term (phi_gamma)
     # ---------------------------
         #velo_r = 0 # place holder. Need desired velos as well (zero for now, but his is not ideal)
