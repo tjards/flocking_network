@@ -119,6 +119,7 @@ def commands(states_q, states_p, obstacles, walls, r, d, r_prime, d_prime, targe
             mu = np.divide(obstacles[3, k_obstacle],normo)
             # compute bold_a_k (for the projection matrix)
             bold_a_k = np.divide(states_q[:,k_node]-obstacles[0:3,k_obstacle],normo)
+            bold_a_k = np.array(bold_a_k, ndmin = 2)
             # compute projection matrix
             P = np.identity(states_p.shape[0]) - np.dot(bold_a_k,bold_a_k.transpose())
             # compute beta-agent position and velocity
@@ -135,7 +136,7 @@ def commands(states_q, states_p, obstacles, walls, r, d, r_prime, d_prime, targe
         for k_wall in range(walls.shape[1]):
             
             # define the wall
-            bold_a_k = walls[0:3,k_wall]    # normal vector
+            bold_a_k = np.array(np.divide(walls[0:3,k_wall],np.linalg.norm(walls[0:3,k_wall])), ndmin=2).transpose()    # normal vector
             y_k = walls[3:6,k_wall]         # point on plane
             # compute the projection matrix
             P = np.identity(y_k.shape[0]) - np.dot(bold_a_k,bold_a_k.transpose())

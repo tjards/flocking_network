@@ -27,10 +27,10 @@ import dynamics_node as node
 #%% Setup Simulation
 # ------------------
 Ti = 0          # initial time
-Tf = 30         # final time 
+Tf = 10         # final time 
 Ts = 0.02       # sample time
 nVeh = 20       # number of vehicles
-nObs = 10        # number of obstacles
+nObs = 1        # number of obstacles
 iSpread = 10     # initial spread of vehicles 
 
 # Vehicles states
@@ -73,11 +73,16 @@ obstacles[3,:] = np.random.rand(1,nObs)+0.5              # radii of obstacle(s)
 # -----------------------
 # need to compute the normal and point (cross product)
 nWalls = 1  
-walls = np.zeros((6,nWalls))                        # just do 1 for now
+walls = np.zeros((6,nWalls)) 
+walls_plots = np.zeros((4,nWalls)) 
+
+# horizontal wall
+wallh = 15
+                       
 # define 3 points on the plane (this one is horizontal)
-wallp1 = np.array([0, 0, 0])
-wallp2 = np.array([1, 1, 0])
-wallp3 = np.array([2, 3, 0])
+wallp1 = np.array([0, 0, wallh])
+wallp2 = np.array([5, 10, wallh+0.01])
+wallp3 = np.array([20, 30, wallh])
 # define two vectors on the plane
 v1 = wallp3 - wallp1
 v2 = wallp2 - wallp1
@@ -87,9 +92,10 @@ walla, wallb, wallc = wallcp
 # compute rest of equation for plane
 walld = np.dot(wallcp, wallp3)
 # store as walls
-walls[0:3] = np.array(wallcp, ndmin=2).transpose()
-walls[3:6] = np.array(wallp1, ndmin=2).transpose()
-
+walls[0:3,0] = np.array(wallcp, ndmin=2)#.transpose()
+walls[3:6,0] = np.array(wallp1, ndmin=2)#.transpose()
+#walls
+walls_plots[:,0] = np.array([walla, wallb, wallc, walld])
 
 #%% Run Simulation
 # ----------------------
@@ -149,7 +155,7 @@ while round(t,3) < Tf:
 #%% Produce animation of simulation
 # ---------------------------------
 
-ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, r, d)
+ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, r, d, walls_plots)
 #plt.show()    
 
 
