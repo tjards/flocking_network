@@ -27,11 +27,11 @@ import dynamics_node as node
 #%% Setup Simulation
 # ------------------
 Ti = 0          # initial time
-Tf = 60         # final time 
+Tf = 20         # final time 
 Ts = 0.02       # sample time
-nVeh = 10       # number of vehicles
+nVeh = 20       # number of vehicles
 nObs = 10        # number of obstacles
-iSpread = 20     # initial spread of vehicles 
+iSpread = 10     # initial spread of vehicles 
 
 # Vehicles states
 # ---------------
@@ -116,7 +116,7 @@ while round(t,3) < Tf:
     # ----------------------------
     states_q = state[0:3,:]     # positions
     states_p = state[3:6,:]     # velocities 
-    d = 5                       # lattice scale (distance between a-agents)
+    d = 3                       # lattice scale (distance between a-agents)
     r = 1.2*d                   # interaction range of a-agents
     d_prime = 0.6*d             # distance between a- and b-agents
     r_prime = 1.2*d_prime       # interaction range of a- and b-agents
