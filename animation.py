@@ -17,7 +17,7 @@ writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
 numFrames = 10 # frame rate (bigger = slower)
 tail = 8
 
-def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r):
+def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d):
     
     # pull out positions
     nVeh = states_all.shape[2]
@@ -63,7 +63,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r):
     
     #labels
     titleTime = ax.text2D(0.05, 0.95, "", transform=ax.transAxes)
-    titleType1 = ax.text2D(0.95, 0.95, 'Swarming', transform=ax.transAxes, horizontalalignment='right')
+    titleType1 = ax.text2D(0.95, 0.95, '%s : %s' % ("Separation", d), transform=ax.transAxes, horizontalalignment='right')
     #titleType2 = ax.text2D(0.95, 0.91, 'Title2', transform=ax.transAxes, horizontalalignment='right') 
     
     # plot things that never move (targets, for now)
