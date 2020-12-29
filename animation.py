@@ -17,7 +17,7 @@ writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
 numFrames = 10 # frame rate (bigger = slower)
 tail = 8
 
-def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d, walls_plots):
+def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d, walls_plots, showObs):
     
     # pull out positions
     nVeh = states_all.shape[2]
@@ -81,10 +81,12 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d,
     lattices = []
     
     # draw plane
-    for i in range(0, walls_plots.shape[1]):
-        xx, yy = np.meshgrid(np.linspace(mid_x-maxRange, mid_x+maxRange, 20), np.linspace(mid_y-maxRange, mid_y+maxRange, 20))
-        zz = (-walls_plots[0,i] * xx - walls_plots[1,i] * yy + walls_plots[3,i] * 1.) / walls_plots[2,i]
-        ax.plot_wireframe(xx, yy, zz, color='m', rcount=20, ccount=20)
+    
+    if showObs == 1:
+        for i in range(0, walls_plots.shape[1]):
+            xx, yy = np.meshgrid(np.linspace(mid_x-maxRange, mid_x+maxRange, 20), np.linspace(mid_y-maxRange, mid_y+maxRange, 20))
+            zz = (-walls_plots[0,i] * xx - walls_plots[1,i] * yy + walls_plots[3,i] * 1.) / walls_plots[2,i]
+            ax.plot_wireframe(xx, yy, zz, color='m', rcount=20, ccount=20)
   
     
     for i in range (0, nVeh):
@@ -101,10 +103,12 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d,
         lattice = ax.plot([], [], [], ':', lw=1, color='blue')
         lattices.extend(lattice)
 
-    for j in range (0, nObs):
-        
-        line_obstacle = ax.plot([], [], [], 'ro', ms = 10*r_o[0,j] )
-        lines_obstacles.extend(line_obstacle)
+    if showObs == 1:
+
+        for j in range (0, nObs):
+            
+            line_obstacle = ax.plot([], [], [], 'ro', ms = 10*r_o[0,j] )
+            lines_obstacles.extend(line_obstacle)
     
     def update(i):
              
@@ -228,12 +232,13 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d,
         
         # build obstacles
         # ---------------
-        for k in range (0, nObs):
-            
-            temp5 = lines_obstacles[k]
-            
-            temp5.set_data(x_o[k], y_o[k])
-            temp5.set_3d_properties(z_o[k])
+        if showObs == 1:
+            for k in range (0, nObs):
+                
+                temp5 = lines_obstacles[k]
+                
+                temp5.set_data(x_o[k], y_o[k])
+                temp5.set_3d_properties(z_o[k])
 
         #line2.set_data(x, y)
         #line2.set_3d_properties(z)
