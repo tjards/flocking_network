@@ -23,15 +23,16 @@ import numpy as np
 import animation 
 import ctrl_flock as flock
 import dynamics_node as node
+import flock_tools as flock_tools
 
 #%% Setup Simulation
 # ------------------
 Ti = 0          # initial time
-Tf = 60         # final time 
+Tf = 10         # final time 
 Ts = 0.02       # sample time
-nVeh = 30       # number of vehicles
-nObs = 20        # number of obstacles
-iSpread = 20     # initial spread of vehicles 
+nVeh = 10       # number of vehicles
+nObs = 10        # number of obstacles
+iSpread = 10     # initial spread of vehicles 
 
 # Vehicles states
 # ---------------
@@ -72,30 +73,22 @@ obstacles[3,:] = np.random.rand(1,nObs)+0.5              # radii of obstacle(s)
 # Walls (obstacle planes)
 # -----------------------
 # need to compute the normal and point (cross product)
-nWalls = 1  
-walls = np.zeros((6,nWalls)) 
-walls_plots = np.zeros((4,nWalls)) 
 
-# horizontal wall
-wallh = 15
-                       
-# define 3 points on the plane (this one is horizontal)
-wallp1 = np.array([0, 0, wallh])
-wallp2 = np.array([5, 10, wallh+0.01])
-wallp3 = np.array([20, 30, wallh])
-# define two vectors on the plane
-v1 = wallp3 - wallp1
-v2 = wallp2 - wallp1
-# compute vector normal to the plane
-wallcp = np.cross(v1, v2)
-walla, wallb, wallc = wallcp
-# compute rest of equation for plane
-walld = np.dot(wallcp, wallp3)
-# store as walls
-walls[0:3,0] = np.array(wallcp, ndmin=2)#.transpose()
-walls[3:6,0] = np.array(wallp1, ndmin=2)#.transpose()
-#walls
-walls_plots[:,0] = np.array([walla, wallb, wallc, walld])
+   
+nWalls = 3
+newWall0, newWall_plots0 = flock_tools.buildWall('horizontal', 20) 
+newWall1, newWall_plots1 = flock_tools.buildWall('vertical', 1) 
+newWall2, newWall_plots2 = flock_tools.buildWall('vertical', 5) 
+  
+walls = np.zeros((6,nWalls)) 
+walls_plots = np.zeros((4,nWalls))
+
+walls[:,0] = newWall0[:,0]
+walls_plots[:,0] = newWall_plots0[:,0]
+walls[:,1] = newWall1[:,0]
+walls_plots[:,1] = newWall_plots1[:,0]
+walls[:,2] = newWall2[:,0]
+walls_plots[:,2] = newWall_plots2[:,0]
 
 #%% Run Simulation
 # ----------------------
@@ -159,4 +152,53 @@ ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:],
 #plt.show()    
 
 
+
+
+#%% Old stuff
          
+
+# # horizontal wall
+# wallh = 15
+                       
+# # define 3 points on the plane (this one is horizontal)
+# wallp1 = np.array([0, 0, wallh])
+# wallp2 = np.array([5, 10, wallh+0.01])
+# wallp3 = np.array([20, 30, wallh])
+# # define two vectors on the plane
+# v1 = wallp3 - wallp1
+# v2 = wallp2 - wallp1
+# # compute vector normal to the plane
+# wallcp = np.cross(v1, v2)
+# walla, wallb, wallc = wallcp
+# # compute rest of equation for plane
+# walld = np.dot(wallcp, wallp3)
+# # store as walls
+# walls[0:3,0] = np.array(wallcp, ndmin=2)#.transpose()
+# walls[3:6,0] = np.array(wallp1, ndmin=2)#.transpose()
+# #walls
+# walls_plots[:,0] = np.array([walla, wallb, wallc, walld])
+
+
+
+# def buildWall(wType, pos): 
+    
+#     if wType == 'horizontal':
+        
+#         # define 3 points on the plane (this one is horizontal)
+#         wallp1 = np.array([0, 0, pos])
+#         wallp2 = np.array([5, 10, pos+0.001])
+#         wallp3 = np.array([20, 30, pos])       
+#         # define two vectors on the plane
+#         v1 = wallp3 - wallp1
+#         v2 = wallp2 - wallp1
+#         # compute vector normal to the plane
+#         wallcp = np.cross(v1, v2)
+#         walla, wallb, wallc = wallcp
+#         walld = np.dot(wallcp, wallp3)
+#         walls = np.zeros((6,1)) 
+#         walls[0:3,0] = np.array(wallcp, ndmin=2)#.transpose()
+#         walls[3:6,0] = np.array(wallp1, ndmin=2)#.transpose()
+#         walls_plots = np.zeros((4,1))
+#         walls_plots[:,0] = np.array([walla, wallb, wallc, walld])
+        
+#         return walls, walls_plots
