@@ -27,11 +27,11 @@ import dynamics_node as node
 #%% Setup Simulation
 # ------------------
 Ti = 0          # initial time
-Tf = 10         # final time 
+Tf = 60         # final time 
 Ts = 0.02       # sample time
-nVeh = 20       # number of vehicles
-nObs = 1        # number of obstacles
-iSpread = 10     # initial spread of vehicles 
+nVeh = 30       # number of vehicles
+nObs = 20        # number of obstacles
+iSpread = 20     # initial spread of vehicles 
 
 # Vehicles states
 # ---------------
@@ -55,7 +55,7 @@ cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
 targets = 4*(np.random.rand(6,nVeh)-0.5)
 targets[0,:] = iSpread/2
 targets[1,:] = iSpread/2
-targets[2,:] = iSpread
+targets[2,:] = 10
 targets[3,:] = 0
 targets[4,:] = 0
 targets[5,:] = 0

@@ -83,7 +83,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d,
     # draw plane
     xx, yy = np.meshgrid(np.linspace(mid_x-maxRange, mid_x+maxRange, 10), np.linspace(mid_y-maxRange, mid_y+maxRange, 10))
     zz = (-walls_plots[0,0] * xx - walls_plots[1,0] * yy + walls_plots[3,0] * 1.) / walls_plots[2,0]
-    ax.plot_wireframe(xx, yy, zz, color=[0.8, 0.8, 0.8])
+    ax.plot_wireframe(xx, yy, zz, color=[0.3, 0.3, 0.3])
     
     for i in range (0, nVeh):
         
