@@ -30,7 +30,7 @@ import flock_tools as flock_tools
 Ti = 0          # initial time
 Tf = 10         # final time 
 Ts = 0.02       # sample time
-nVeh = 10       # number of vehicles
+nVeh = 20       # number of vehicles
 nObs = 10        # number of obstacles
 iSpread = 10     # initial spread of vehicles 
 
@@ -39,7 +39,7 @@ iSpread = 10     # initial spread of vehicles
 state = np.zeros((6,nVeh))
 state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (x)
 state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (y)
-state[2,:] = np.maximum(iSpread*(np.random.rand(1,nVeh)+1.5),0.5)   # position (z)
+state[2,:] = np.maximum((np.random.rand(1,nVeh)+1.5),0.5)   # position (z)
 state[3,:] = 0                                      # velocity (vx)
 state[4,:] = 0                                      # velocity (vy)
 state[5,:] = 0                                      # velocity (vz)
@@ -54,9 +54,9 @@ cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
 # Targets
 # -------
 targets = 4*(np.random.rand(6,nVeh)-0.5)
-targets[0,:] = iSpread/2
-targets[1,:] = iSpread/2
-targets[2,:] = 10
+targets[0,:] = 0
+targets[1,:] = 0
+targets[2,:] = -5
 targets[3,:] = 0
 targets[4,:] = 0
 targets[5,:] = 0
@@ -75,20 +75,20 @@ obstacles[3,:] = np.random.rand(1,nObs)+0.5              # radii of obstacle(s)
 # need to compute the normal and point (cross product)
 
    
-nWalls = 3
-newWall0, newWall_plots0 = flock_tools.buildWall('horizontal', 20) 
-newWall1, newWall_plots1 = flock_tools.buildWall('vertical', 1) 
-newWall2, newWall_plots2 = flock_tools.buildWall('vertical', 5) 
+nWalls = 1
+newWall0, newWall_plots0 = flock_tools.buildWall('horizontal', 0) 
+# newWall1, newWall_plots1 = flock_tools.buildWall('vertical', -2) 
+# newWall2, newWall_plots2 = flock_tools.buildWall('vertical', 2) 
   
 walls = np.zeros((6,nWalls)) 
 walls_plots = np.zeros((4,nWalls))
 
 walls[:,0] = newWall0[:,0]
 walls_plots[:,0] = newWall_plots0[:,0]
-walls[:,1] = newWall1[:,0]
-walls_plots[:,1] = newWall_plots1[:,0]
-walls[:,2] = newWall2[:,0]
-walls_plots[:,2] = newWall_plots2[:,0]
+# walls[:,1] = newWall1[:,0]
+# walls_plots[:,1] = newWall_plots1[:,0]
+# walls[:,2] = newWall2[:,0]
+# walls_plots[:,2] = newWall_plots2[:,0]
 
 #%% Run Simulation
 # ----------------------

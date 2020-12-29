@@ -31,7 +31,7 @@ def buildWall(wType, pos):
         
     if wType == 'vertical':
         
-        # define 3 points on the plane (this one is horizontal)
+        # define 3 points on the plane (this one is vertical
         wallp1 = np.array([0, pos, 0])
         wallp2 = np.array([5, pos+0.1, 10])
         wallp3 = np.array([20,pos, 30])       
