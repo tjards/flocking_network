@@ -84,7 +84,8 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d,
     for i in range(0, walls_plots.shape[1]):
         xx, yy = np.meshgrid(np.linspace(mid_x-maxRange, mid_x+maxRange, 10), np.linspace(mid_y-maxRange, mid_y+maxRange, 10))
         zz = (-walls_plots[0,i] * xx - walls_plots[1,i] * yy + walls_plots[3,i] * 1.) / walls_plots[2,i]
-        ax.plot_wireframe(xx, yy, zz, color=[0.3, 0.3, 0.3])
+        ax.plot_wireframe(xx, yy, zz, color='m', rcount=20, ccount=20)
+  
     
     for i in range (0, nVeh):
         

@@ -13,7 +13,7 @@ def buildWall(wType, pos):
         
         # define 3 points on the plane (this one is horizontal)
         wallp1 = np.array([0, 0, pos])
-        wallp2 = np.array([5, 10, pos+0.001])
+        wallp2 = np.array([5, 10, pos+0.1])
         wallp3 = np.array([20, 30, pos])       
         # define two vectors on the plane
         v1 = wallp3 - wallp1
@@ -33,7 +33,7 @@ def buildWall(wType, pos):
         
         # define 3 points on the plane (this one is horizontal)
         wallp1 = np.array([0, pos, 0])
-        wallp2 = np.array([5, pos+0.001, 10])
+        wallp2 = np.array([5, pos+0.1, 10])
         wallp3 = np.array([20,pos, 30])       
         # define two vectors on the plane
         v1 = wallp3 - wallp1
