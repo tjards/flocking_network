@@ -3,6 +3,9 @@
 """
 Created on Mon Dec 28 20:29:59 2020
 
+This file defines some useful planes
+
+
 @author: tjards
 """
 import numpy as np 

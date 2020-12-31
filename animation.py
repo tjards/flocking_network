@@ -82,7 +82,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d,
     
     # draw plane
     
-    if showObs == 1:
+    if showObs == 2:
         for i in range(0, walls_plots.shape[1]):
             xx, yy = np.meshgrid(np.linspace(mid_x-maxRange, mid_x+maxRange, 20), np.linspace(mid_y-maxRange, mid_y+maxRange, 20))
             if walls_plots[2,i] == 0:
@@ -105,7 +105,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d,
         lattice = ax.plot([], [], [], ':', lw=1, color='blue')
         lattices.extend(lattice)
 
-    if showObs == 1:
+    if showObs >= 1:
 
         for j in range (0, nObs):
             
@@ -234,7 +234,7 @@ def animateMe(Ts, t_all, states_all, cmds_all, targets_all, obstacles_all, r, d,
         
         # build obstacles
         # ---------------
-        if showObs == 1:
+        if showObs >= 1:
             for k in range (0, nObs):
                 
                 temp5 = lines_obstacles[k]

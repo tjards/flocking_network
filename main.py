@@ -18,7 +18,7 @@ Created on Tue Dec 22 11:48:18 2020
 #%% Import stuff
 # --------------
 
-from scipy.integrate import ode
+#from scipy.integrate import ode
 import numpy as np
 import animation 
 import ctrl_flock as flock
@@ -28,9 +28,9 @@ import flock_tools as flock_tools
 #%% Setup Simulation
 # ------------------
 Ti = 0          # initial time
-Tf = 20         # final time 
+Tf = 5         # final time 
 Ts = 0.02       # sample time
-nVeh = 20       # number of vehicles
+nVeh = 10       # number of vehicles
 iSpread = 10     # initial spread of vehicles 
 
 # Vehicles states
@@ -38,7 +38,7 @@ iSpread = 10     # initial spread of vehicles
 state = np.zeros((6,nVeh))
 state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (x)
 state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (y)
-state[2,:] = np.maximum((iSpread*np.random.rand(1,nVeh)+1.5),5)   # position (z)
+state[2,:] = np.maximum((iSpread*np.random.rand(1,nVeh)+1.5),0)   # position (z)
 state[3,:] = 0                                      # velocity (vx)
 state[4,:] = 0                                      # velocity (vy)
 state[5,:] = 0                                      # velocity (vz)
@@ -55,7 +55,7 @@ cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
 targets = 4*(np.random.rand(6,nVeh)-0.5)
 targets[0,:] = 0 #5*(np.random.rand(1,nVeh)-0.5)
 targets[1,:] = 0# 5*(np.random.rand(1,nVeh)-0.5)
-targets[2,:] = -2
+targets[2,:] = 1
 targets[3,:] = 0
 targets[4,:] = 0
 targets[5,:] = 0
@@ -63,48 +63,52 @@ error = state[0:3,:] - targets[0:3,:]
 
 # Obstacles
 # --------
-nObs = 0        # number of obstacles
+nObs = 5        # number of obstacles
 obstacles = np.zeros((4,nObs))
 
-#manual
-obstacles[0,:] = 0    # position (x)
-obstacles[1,:] = 0   # position (y)
-obstacles[2,:] = 0   # position (z)
-obstacles[3,:] = 0
+#manual (comment out if random)
+# obstacles[0,:] = 0    # position (x)
+# obstacles[1,:] = 0   # position (y)
+# obstacles[2,:] = 0   # position (z)
+# obstacles[3,:] = 0
 
 #random (comment this out if manual)
-#obstacles[0,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (x)
-#obstacles[1,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (y)
-#obstacles[2,:] = np.maximum(iSpread*(np.random.rand(1,nObs)+1.5),2)    # position (z)
-#obstacles[3,:] = np.random.rand(1,nObs)+0.5              # radii of obstacle(s)
+obstacles[0,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (x)
+obstacles[1,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (y)
+obstacles[2,:] = np.maximum(iSpread*(np.random.rand(1,nObs)-0.5),2)    # position (z)
+obstacles[3,:] = np.random.rand(1,nObs)+0.5              # radii of obstacle(s)
 
-# Walls (obstacle planes)
-# -----------------------
-# need to compute the normal and point (cross product)
-
-   
-nWalls = 5
+# Walls/Floors 
+# - these are defined manually as planes
+# --------------------------------------   
+nWalls = 1
 walls = np.zeros((6,nWalls)) 
 walls_plots = np.zeros((4,nWalls))
 
+# add the ground at z = 0:
+newWall0, newWall_plots0 = flock_tools.buildWall('horizontal', 0) 
 
-newWall0, newWall_plots0 = flock_tools.buildWall('horizontal', -3) 
-newWall1, newWall_plots1 = flock_tools.buildWall('diagonal1a', 3) 
-newWall2, newWall_plots2 = flock_tools.buildWall('diagonal1b', -3) 
-newWall3, newWall_plots3 = flock_tools.buildWall('diagonal2a', -3) 
-newWall4, newWall_plots4 = flock_tools.buildWall('diagonal2b', 3) 
-  
-
+# load the ground into constraints   
 walls[:,0] = newWall0[:,0]
 walls_plots[:,0] = newWall_plots0[:,0]
-walls[:,1] = newWall1[:,0]
-walls_plots[:,1] = newWall_plots1[:,0]
-walls[:,2] = newWall2[:,0]
-walls_plots[:,2] = newWall_plots2[:,0]
-walls[:,3] = newWall3[:,0]
-walls_plots[:,3] = newWall_plots3[:,0]
-walls[:,4] = newWall4[:,0]
-walls_plots[:,4] = newWall_plots4[:,0]
+
+# add other planes (commented out)
+
+# newWall1, newWall_plots1 = flock_tools.buildWall('diagonal1a', 3) 
+# newWall2, newWall_plots2 = flock_tools.buildWall('diagonal1b', -3) 
+# newWall3, newWall_plots3 = flock_tools.buildWall('diagonal2a', -3) 
+# newWall4, newWall_plots4 = flock_tools.buildWall('diagonal2b', 3)
+
+# load other planes (comment out by default)
+
+# walls[:,1] = newWall1[:,0]
+# walls_plots[:,1] = newWall_plots1[:,0]
+# walls[:,2] = newWall2[:,0]
+# walls_plots[:,2] = newWall_plots2[:,0]
+# walls[:,3] = newWall3[:,0]
+# walls_plots[:,3] = newWall_plots3[:,0]
+# walls[:,4] = newWall4[:,0]
+# walls_plots[:,4] = newWall_plots4[:,0]
 
 #%% Run Simulation
 # ----------------------
@@ -165,58 +169,10 @@ while round(t,3) < Tf:
 #%% Produce animation of simulation
 # ---------------------------------
 
-showObs = 0
+showObs = 1 # (0 = don't show obstacles, 1 = show obstacles, 2 = show obstacles + floors/walls)
 ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, r, d, walls_plots, showObs)
 #plt.show()    
 
 
 
 
-#%% Old stuff
-         
-
-# # horizontal wall
-# wallh = 15
-                       
-# # define 3 points on the plane (this one is horizontal)
-# wallp1 = np.array([0, 0, wallh])
-# wallp2 = np.array([5, 10, wallh+0.01])
-# wallp3 = np.array([20, 30, wallh])
-# # define two vectors on the plane
-# v1 = wallp3 - wallp1
-# v2 = wallp2 - wallp1
-# # compute vector normal to the plane
-# wallcp = np.cross(v1, v2)
-# walla, wallb, wallc = wallcp
-# # compute rest of equation for plane
-# walld = np.dot(wallcp, wallp3)
-# # store as walls
-# walls[0:3,0] = np.array(wallcp, ndmin=2)#.transpose()
-# walls[3:6,0] = np.array(wallp1, ndmin=2)#.transpose()
-# #walls
-# walls_plots[:,0] = np.array([walla, wallb, wallc, walld])
-
-
-
-# def buildWall(wType, pos): 
-    
-#     if wType == 'horizontal':
-        
-#         # define 3 points on the plane (this one is horizontal)
-#         wallp1 = np.array([0, 0, pos])
-#         wallp2 = np.array([5, 10, pos+0.001])
-#         wallp3 = np.array([20, 30, pos])       
-#         # define two vectors on the plane
-#         v1 = wallp3 - wallp1
-#         v2 = wallp2 - wallp1
-#         # compute vector normal to the plane
-#         wallcp = np.cross(v1, v2)
-#         walla, wallb, wallc = wallcp
-#         walld = np.dot(wallcp, wallp3)
-#         walls = np.zeros((6,1)) 
-#         walls[0:3,0] = np.array(wallcp, ndmin=2)#.transpose()
-#         walls[3:6,0] = np.array(wallp1, ndmin=2)#.transpose()
-#         walls_plots = np.zeros((4,1))
-#         walls_plots[:,0] = np.array([walla, wallb, wallc, walld])
-        
-#         return walls, walls_plots
