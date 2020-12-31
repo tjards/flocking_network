@@ -28,9 +28,9 @@ import flock_tools as flock_tools
 #%% Setup Simulation
 # ------------------
 Ti = 0          # initial time
-Tf = 30         # final time 
+Tf = 20         # final time 
 Ts = 0.02       # sample time
-nVeh = 40       # number of vehicles
+nVeh = 20       # number of vehicles
 iSpread = 10     # initial spread of vehicles 
 
 # Vehicles states
@@ -38,7 +38,7 @@ iSpread = 10     # initial spread of vehicles
 state = np.zeros((6,nVeh))
 state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (x)
 state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (y)
-state[2,:] = np.maximum((np.random.rand(1,nVeh)+1.5),5)   # position (z)
+state[2,:] = np.maximum((iSpread*np.random.rand(1,nVeh)+1.5),5)   # position (z)
 state[3,:] = 0                                      # velocity (vx)
 state[4,:] = 0                                      # velocity (vy)
 state[5,:] = 0                                      # velocity (vz)
@@ -53,8 +53,8 @@ cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
 # Targets
 # -------
 targets = 4*(np.random.rand(6,nVeh)-0.5)
-targets[0,:] = 0
-targets[1,:] = 0
+targets[0,:] = 0 #5*(np.random.rand(1,nVeh)-0.5)
+targets[1,:] = 0# 5*(np.random.rand(1,nVeh)-0.5)
 targets[2,:] = -2
 targets[3,:] = 0
 targets[4,:] = 0
@@ -63,14 +63,14 @@ error = state[0:3,:] - targets[0:3,:]
 
 # Obstacles
 # --------
-nObs = 1        # number of obstacles
+nObs = 0        # number of obstacles
 obstacles = np.zeros((4,nObs))
 
 #manual
 obstacles[0,:] = 0    # position (x)
 obstacles[1,:] = 0   # position (y)
 obstacles[2,:] = 0   # position (z)
-obstacles[3,:] = 1
+obstacles[3,:] = 0
 
 #random (comment this out if manual)
 #obstacles[0,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (x)
@@ -83,13 +83,17 @@ obstacles[3,:] = 1
 # need to compute the normal and point (cross product)
 
    
-nWalls = 3
-newWall0, newWall_plots0 = flock_tools.buildWall('horizontal', 0) 
-newWall1, newWall_plots1 = flock_tools.buildWall('vertical', -5) 
-newWall2, newWall_plots2 = flock_tools.buildWall('vertical', 5) 
-  
+nWalls = 5
 walls = np.zeros((6,nWalls)) 
 walls_plots = np.zeros((4,nWalls))
+
+
+newWall0, newWall_plots0 = flock_tools.buildWall('horizontal', -3) 
+newWall1, newWall_plots1 = flock_tools.buildWall('diagonal1a', 3) 
+newWall2, newWall_plots2 = flock_tools.buildWall('diagonal1b', -3) 
+newWall3, newWall_plots3 = flock_tools.buildWall('diagonal2a', -3) 
+newWall4, newWall_plots4 = flock_tools.buildWall('diagonal2b', 3) 
+  
 
 walls[:,0] = newWall0[:,0]
 walls_plots[:,0] = newWall_plots0[:,0]
@@ -97,6 +101,10 @@ walls[:,1] = newWall1[:,0]
 walls_plots[:,1] = newWall_plots1[:,0]
 walls[:,2] = newWall2[:,0]
 walls_plots[:,2] = newWall_plots2[:,0]
+walls[:,3] = newWall3[:,0]
+walls_plots[:,3] = newWall_plots3[:,0]
+walls[:,4] = newWall4[:,0]
+walls_plots[:,4] = newWall_plots4[:,0]
 
 #%% Run Simulation
 # ----------------------
@@ -145,7 +153,7 @@ while round(t,3) < Tf:
     # ----------------------------
     states_q = state[0:3,:]     # positions
     states_p = state[3:6,:]     # velocities 
-    d = 1                       # lattice scale (distance between a-agents)
+    d = 2                       # lattice scale (distance between a-agents)
     r = 1.2*d                   # interaction range of a-agents
     d_prime = 0.6*d             # distance between a- and b-agents
     r_prime = 1.2*d_prime       # interaction range of a- and b-agents

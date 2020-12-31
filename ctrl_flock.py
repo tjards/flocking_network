@@ -145,7 +145,8 @@ def commands(states_q, states_p, obstacles, walls, r, d, r_prime, d_prime, targe
             # compute distance to beta-agent
             dist_b = np.linalg.norm(q_ik-states_q[:,k_node])
             # if it is with the beta range
-            if dist_b < r_prime:
+            maxAlt = 3 # TRAVIS: maxAlt is for testing, only enforces walls below this altitude
+            if dist_b < r_prime and states_q[2,k_node] < maxAlt:
                 p_ik = np.dot(P,states_p[:,k_node])
                 u_obs[:,k_node] += c1_b*phi_b(states_q[:,k_node], q_ik, d_b)*n_ij(states_q[:,k_node], q_ik) + c2_b*b_ik(states_q[:,k_node], q_ik, d_b)*(p_ik - states_p[:,k_node])
     
