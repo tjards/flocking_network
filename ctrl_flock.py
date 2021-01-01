@@ -77,7 +77,6 @@ def phi_b(q_i, q_ik, d_b):
     phi_b = rho_h(z/d_b) * (sigma_1(z-d_b)-1)    
     return phi_b
 
-
     
 # Flocking Equations 
 # -------------------

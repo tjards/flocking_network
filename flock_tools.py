@@ -3,8 +3,7 @@
 """
 Created on Mon Dec 28 20:29:59 2020
 
-This file defines some useful planes
-
+This file defines some useful planar constraints
 
 @author: tjards
 """
@@ -30,8 +29,7 @@ def buildWall(wType, pos):
         walls[3:6,0] = np.array(wallp1, ndmin=2)#.transpose()
         walls_plots = np.zeros((4,1))
         walls_plots[:,0] = np.array([walla, wallb, wallc, walld])
-        
-        
+                
     if wType == 'vertical1':
         
         # define 3 points on the plane (this one is vertical
@@ -69,8 +67,7 @@ def buildWall(wType, pos):
         walls[3:6,0] = np.array(wallp1, ndmin=2)#.transpose()
         walls_plots = np.zeros((4,1))
         walls_plots[:,0] = np.array([walla, wallb, wallc, walld])
-        
-        
+               
     if wType == 'diagonal1a':
         
         # define 3 points on the plane (this one is vertical

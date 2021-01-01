@@ -28,20 +28,20 @@ import flock_tools as flock_tools
 #%% Setup Simulation
 # ------------------
 Ti = 0          # initial time
-Tf = 5         # final time 
+Tf = 5          # final time 
 Ts = 0.02       # sample time
 nVeh = 10       # number of vehicles
-iSpread = 10     # initial spread of vehicles 
+iSpread = 10    # initial spread of vehicles 
 
 # Vehicles states
 # ---------------
 state = np.zeros((6,nVeh))
-state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (x)
-state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)   # position (y)
-state[2,:] = np.maximum((iSpread*np.random.rand(1,nVeh)+1.5),0)   # position (z)
-state[3,:] = 0                                      # velocity (vx)
-state[4,:] = 0                                      # velocity (vy)
-state[5,:] = 0                                      # velocity (vz)
+state[0,:] = iSpread*(np.random.rand(1,nVeh)-0.5)               # position (x)
+state[1,:] = iSpread*(np.random.rand(1,nVeh)-0.5)               # position (y)
+state[2,:] = np.maximum((iSpread*np.random.rand(1,nVeh)+1.5),0) # position (z)
+state[3,:] = 0                                                  # velocity (vx)
+state[4,:] = 0                                                  # velocity (vy)
+state[5,:] = 0                                                  # velocity (vz)
 
 # Commands
 # --------
@@ -54,29 +54,29 @@ cmd[2] = np.random.rand(1,nVeh)-0.5      # command (z)
 # -------
 targets = 4*(np.random.rand(6,nVeh)-0.5)
 targets[0,:] = 0 #5*(np.random.rand(1,nVeh)-0.5)
-targets[1,:] = 0# 5*(np.random.rand(1,nVeh)-0.5)
+targets[1,:] = 0 #5*(np.random.rand(1,nVeh)-0.5)
 targets[2,:] = 1
 targets[3,:] = 0
 targets[4,:] = 0
 targets[5,:] = 0
 error = state[0:3,:] - targets[0:3,:]
 
-# Obstacles
-# --------
-nObs = 5        # number of obstacles
+#%% Define obstacles
+# ------------------
+nObs = 5    # number of obstacles
 obstacles = np.zeros((4,nObs))
 
 #manual (comment out if random)
 # obstacles[0,:] = 0    # position (x)
-# obstacles[1,:] = 0   # position (y)
-# obstacles[2,:] = 0   # position (z)
+# obstacles[1,:] = 0    # position (y)
+# obstacles[2,:] = 0    # position (z)
 # obstacles[3,:] = 0
 
 #random (comment this out if manual)
-obstacles[0,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (x)
-obstacles[1,:] = iSpread*(np.random.rand(1,nObs)-0.5)    # position (y)
-obstacles[2,:] = np.maximum(iSpread*(np.random.rand(1,nObs)-0.5),2)    # position (z)
-obstacles[3,:] = np.random.rand(1,nObs)+0.5              # radii of obstacle(s)
+obstacles[0,:] = iSpread*(np.random.rand(1,nObs)-0.5)                   # position (x)
+obstacles[1,:] = iSpread*(np.random.rand(1,nObs)-0.5)                   # position (y)
+obstacles[2,:] = np.maximum(iSpread*(np.random.rand(1,nObs)-0.5),2)     # position (z)
+obstacles[3,:] = np.random.rand(1,nObs)+0.5                             # radii of obstacle(s)
 
 # Walls/Floors 
 # - these are defined manually as planes
@@ -92,7 +92,7 @@ newWall0, newWall_plots0 = flock_tools.buildWall('horizontal', 0)
 walls[:,0] = newWall0[:,0]
 walls_plots[:,0] = newWall_plots0[:,0]
 
-# add other planes (commented out)
+# add other planes (comment out by default)
 
 # newWall1, newWall_plots1 = flock_tools.buildWall('diagonal1a', 3) 
 # newWall2, newWall_plots2 = flock_tools.buildWall('diagonal1b', -3) 
@@ -163,12 +163,9 @@ while round(t,3) < Tf:
     r_prime = 1.2*d_prime       # interaction range of a- and b-agents
     
     cmd = flock.commands(states_q, states_p, obstacles, walls, r, d, r_prime, d_prime, targets[0:3,:], targets[3:6,:])
-    
-    
-    
+        
 #%% Produce animation of simulation
 # ---------------------------------
-
 showObs = 1 # (0 = don't show obstacles, 1 = show obstacles, 2 = show obstacles + floors/walls)
 ani = animation.animateMe(Ts, t_all, states_all, cmds_all, targets_all[:,0:3,:], obstacles_all, r, d, walls_plots, showObs)
 #plt.show()    
